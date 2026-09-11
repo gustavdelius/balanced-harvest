@@ -236,6 +236,14 @@ absence of compensatory recruitment, whether `F ∝ B` would do just as well as
 `F ∝ P`, and whether the *adaptive feedback* or merely the *initial allocation*
 is doing the work — and sets out an investigation.
 
+**[robustness-results.md](robustness-results.md) reports what came out of it.**
+In short: the calibration criterion turns out not to matter (the frontiers never
+cross, and I was wrong to call it the most load-bearing choice); `F` proportional
+to *biomass* does everything `F` proportional to production does; about
+three-quarters of the benefit is the initial allocation across species rather
+than the adaptive feedback; and the plankton cannot be made contestable without
+destroying the large-bodied community the paper harvests.
+
 One finding from that work is already in hand. Appendix B nominates competition
 among larvae for plankton as the mechanism that replaces an imposed
 stock-recruitment relationship. Measured on the assembled 15-species ecosystem,

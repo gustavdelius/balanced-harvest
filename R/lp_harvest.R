@@ -13,6 +13,9 @@
 
 source("R/lp_model.R")
 
+# The three rules of the paper, in the order its figures use.
+RULES <- c("fixed", "BHP", "BHPB")
+
 ## --- Measuring B and P over the harvested range ----------------------------
 # w_f = 400 g does not fall on a grid point, so the fishery starts at the
 # first grid point at or above it; that same point is used for the
@@ -61,18 +64,39 @@ lp_yield <- function(params, n, e_growth, t = 0) {
 }
 
 ## --- The fishing rules -----------------------------------------------------
+# Every rule has the form F_i(t) = c * z'_i * g_i(t), differing only in the
+# per-species allocation g_i.  The three of the paper are `fixed`, `BHP` and
+# `BHPB`; the rest are controls for docs/robustness.md.
+#
+#   fixed   g_i = 1                        Eq. (2.7)
+#   BHP     g_i = P_i(t)                   Eq. (2.8)
+#   BHPB    g_i = P_i(t)/B_i(t)            Eq. (2.9)
+#   BHB     g_i = B_i(t)                   does production do any work, or is
+#                                          proportionality to biomass enough?
+#   power   g_i = B_i(t)^theta             the family the three rules sit in:
+#                                          theta = 0 is fixed, 1 is BHB,
+#                                          BHPB sits at theta slightly negative
+#   frozen  g_i = a fixed vector           separates the allocation across
+#                                          species from the feedback over time
+lp_alloc <- function(params, n, e_growth) {
+    op <- other_params(params)
+    switch(op$lp_rule,
+        none   = rep(0, nrow(n)),
+        fixed  = rep(1, nrow(n)),
+        BHP    = lp_production(params, n, e_growth),
+        BHPB   = lp_production(params, n, e_growth) / lp_biomass(params, n),
+        BHB    = lp_biomass(params, n),
+        power  = lp_biomass(params, n)^op$lp_theta,
+        frozen = op$lp_alloc,
+        stop("unknown fishing rule: ", op$lp_rule))
+}
+
 # Returns the vector of species-level fishing mortality rates F_i(t).
 lp_F <- function(params, n, e_growth, t = 0) {
     op <- other_params(params)
     if (is.null(op$lp_rule) || op$lp_rule == "none")
         return(rep(0, nrow(n)))
-    z <- op$lp_zf                                # z'_i, the intensity factor
-    F_i <- switch(op$lp_rule,
-        fixed = op$lp_const * z,
-        BHP   = op$lp_const * z * lp_production(params, n, e_growth),
-        BHPB  = op$lp_const * z * lp_production(params, n, e_growth) /
-                                  lp_biomass(params, n),
-        stop("unknown fishing rule: ", op$lp_rule))
+    F_i <- op$lp_const * op$lp_zf * lp_alloc(params, n, e_growth)
     F_i[!is.finite(F_i)] <- 0
     pmax(F_i, 0)
 }
@@ -91,13 +115,16 @@ lpFMort <- function(params, n, n_pp, n_other, t = 0, effort,
 # zf is the per-species intensity factor z'_i (all 1 for Figs 3, 4).
 lp_set_fishing <- function(params, rule, const = 0,
                            zf = rep(1, nrow(species_params(params))),
-                           w_f = LP_FISHING$w_f) {
+                           w_f = LP_FISHING$w_f,
+                           theta = NULL, alloc = NULL) {
     jf <- lp_wf_idx(params, w_f)
     other_params(params)$lp_jf    <- jf
     other_params(params)$lp_sel   <- as.numeric(seq_along(w(params)) >= jf)
     other_params(params)$lp_rule  <- rule
     other_params(params)$lp_const <- const
     other_params(params)$lp_zf    <- zf
+    other_params(params)$lp_theta <- theta
+    other_params(params)$lp_alloc <- alloc
     setRateFunction(params, "FMort", "lpFMort")
 }
 
@@ -126,7 +153,9 @@ lp_track <- function(sim) {
 lp_harvest <- function(params, rule, const = 0,
                        zf = rep(1, nrow(species_params(params))),
                        t_max = LP_FISHING$t_max, dt = LP_NUMERICS$dt,
-                       t_save = 1) {
-    p <- lp_set_fishing(params, rule, const, zf)
+                       t_save = 1, theta = NULL, alloc = NULL,
+                       w_f = LP_FISHING$w_f) {
+    p <- lp_set_fishing(params, rule, const, zf, w_f = w_f,
+                        theta = theta, alloc = alloc)
     project(p, t_max = t_max, dt = dt, t_save = t_save, progress_bar = FALSE)
 }

@@ -1,6 +1,9 @@
 # Which arbitrary choices could change Law & Plank's conclusion, and how to find out
 
-Status: a design document. Nothing here has been run yet. It is written against
+Status: the design document. Results as they come in are in
+[robustness-results.md](robustness-results.md), which also corrects two claims
+made here (section 3.1 on the calibration criterion, and the role of `I_0` in
+section 3.6). It is written against
 the reimplementation in this repository, and names the code hooks each
 experiment would need.
 
@@ -173,27 +176,32 @@ and there it bites hard, pulling the top of the plankton spectrum down to a thir
 of capacity.
 
 The reason is structural, and follows from Eq. (A.11) in two lines. At steady
-state, dividing through by `a(x)` and writing `L = n/a`:
+state, dividing through by `a(x)` and writing `L = n/a` and `iota = I/a`:
 
 ```
-I/a + r L (1 - L) - d L = 0
+iota + r L (1 - L) - d L = 0        =>    r L^2 - (r - d) L - iota = 0
 ```
 
-The paper sets `I_0 = a_0 = 2000` and gives `I(x)` and `a(x)` the *same* size
-scaling, so `I/a = 1 per year at every plankton size`. Then
-`r L^2 - (r - d) L - 1 = 0`, so `L ~ 1/d` once `d >> r`. With
-`r = 10 w^-0.15`, that is 40–220/yr across the larval prey range, against a
-measured predation mortality of 0.4–0.5/yr. (The formula also reproduces the
-table exactly: at `r = 223.5, d = 0` it gives `L = 1.00447`.)
+With `r = 10 w^-0.15`, that is 40-220/yr across the larval prey range, against
+a measured grazing mortality of 0.4-0.9/yr. Solving for `L` at `r = 79/yr`,
+`d = 0.7/yr`:
 
-So two arbitrary choices combine to make the resource effectively inexhaustible
-where it matters most for recruitment: the plankton regenerates two orders of
-magnitude faster than it is grazed, and immigration replaces the entire standing
-stock once a year at every size regardless. The `I_0 = a_0` coincidence is stated
-nowhere as a modelling decision — the text specifies only that `I(x)` "was
-assumed to scale with body size in the same way as the carrying capacity", and
-the magnitude is simply set equal to `a_0` without comment. It may be the single
-most consequential unexplained number in the paper.
+| `iota` (per year) | 1 (published) | 0.1 | 0.01 | 0 |
+|---|---|---|---|---|
+| resource level `L` | 1.004 | 0.992 | 0.991 | 0.991 |
+
+**The immigration term is not what protects the plankton.** Switching it off
+entirely moves the resource level from 1.004 to 0.991. What keeps `L` pinned at
+1 is that the plankton regenerate two orders of magnitude faster than they are
+grazed. (An earlier draft of this section named `I_0 = a_0` as the decisive
+choice; that was wrong. It becomes decisive only in combination with a slow
+plankton — at `r = 0.79/yr` the same table reads 1.183, 0.417, 0.183, 0.114.)
+
+So the parameter to reach for is `r_0`, and `iota` matters only once `r_0` is
+already low. Both are set without justification: `r_0 = 10` is anchored to a
+cell-division scaling exponent, not to a rate, and `I_0` is simply set equal to
+`a_0` with no comment beyond the statement that `I(x)` "was assumed to scale
+with body size in the same way as the carrying capacity".
 
 The effect on growth is direct. Multiplying the whole fish spectrum by 2 and
 letting the plankton re-equilibrate changes growth rate by:

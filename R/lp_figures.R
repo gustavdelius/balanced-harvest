@@ -10,7 +10,6 @@ source("R/lp_harvest.R")
 library(ggplot2)
 library(patchwork)
 
-RULES  <- c("fixed", "BHP", "BHPB")
 RULE_LAB <- c(fixed = "F[i]*': constant'",
               BHP   = "F[i]*': '*BH[P]",
               BHPB  = "F[i]*': '*BH[P/B]")

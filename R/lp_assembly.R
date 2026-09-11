@@ -20,9 +20,9 @@ lp_state <- function(params, n, n_pp) list(params = params, n = n, n_pp = n_pp)
 # Rebuild the params object for a given set of life histories.  The size grid
 # is fixed (min_w = egg mass, max_w = 40 kg) and so does not move as species
 # come and go, which lets abundance arrays be carried across rebuilds.
-lp_rebuild <- function(w_max, mu_egg, z) {
+lp_rebuild <- function(w_max, mu_egg, z, plankton = LP_PLANKTON) {
     lp_params(w_max = w_max, mu_egg = mu_egg, z = z,
-              species = seq_along(w_max))
+              species = seq_along(w_max), plankton = plankton)
 }
 
 # Draw one invader (Appendix B step 1).
@@ -36,7 +36,8 @@ lp_draw_invader <- function(assembly = LP_ASSEMBLY, randomise_A = FALSE) {
 }
 
 lp_assemble <- function(assembly = LP_ASSEMBLY, randomise_A = FALSE,
-                        dt = 0.01, verbose = TRUE) {
+                        dt = 0.01, verbose = TRUE,
+                        plankton = LP_PLANKTON) {
     w_max <- numeric(0); mu_egg <- numeric(0); z <- numeric(0)
     n <- NULL; n_pp <- NULL
     attempts <- 0
@@ -49,7 +50,7 @@ lp_assemble <- function(assembly = LP_ASSEMBLY, randomise_A = FALSE,
         w_max_new  <- c(w_max, inv$w_max)
         mu_egg_new <- c(mu_egg, inv$mu_egg)
         z_new      <- c(z, inv$z)
-        p <- lp_rebuild(w_max_new, mu_egg_new, z_new)
+        p <- lp_rebuild(w_max_new, mu_egg_new, z_new, plankton)
 
         # Carry the resident spectra over; start the invader low on a power law.
         n_new <- initialN(p)
@@ -88,7 +89,7 @@ lp_assemble <- function(assembly = LP_ASSEMBLY, randomise_A = FALSE,
 
     # Order species by maximum body mass, as the paper numbers them (Fig. 2c).
     o <- order(w_max)
-    p <- lp_rebuild(w_max[o], mu_egg[o], z[o])
+    p <- lp_rebuild(w_max[o], mu_egg[o], z[o], plankton)
     initialN(p) <- unname(n[o, , drop = FALSE])
     initialNResource(p) <- n_pp
     list(params = p, attempts = attempts)
