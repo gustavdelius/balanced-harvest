@@ -25,7 +25,7 @@ RARE <- data.frame(Species = sci, species = unname(SPECIES)) |>
     left_join(pop, by = "Species")
 
 print(RARE)
-saveRDS(RARE, "rare_species_params_raw.rds")
+saveRDS(RARE, "data/ns_species_params_raw.rds")
 
 ## Assemble the mizer species_params table ----------------------------------
 # l_max here is FishBase's asymptotic length Loo, which is what mizer's w_max
@@ -35,4 +35,4 @@ RARE <- RARE |>
     transmute(species, Scientific_name = Species, a, b, l_max, l_mat, k_vb,
               w_max = a * l_max^b, w_mat = a * l_mat^b)
 print(RARE)
-saveRDS(RARE, "rare_species_params.rds")
+saveRDS(RARE, "data/ns_species_params.rds")

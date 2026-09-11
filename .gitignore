@@ -15,4 +15,4 @@ data/cache/
 
 # Third-party survey data downloaded for the separate North Sea exercise.
 # Not redistributed here; re-download it rather than committing it.
-datras_ns_ibts_q1.rds
+data/datras_ns_ibts_q1.rds

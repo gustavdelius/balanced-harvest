@@ -1,8 +1,8 @@
 # Run the three harvesting regimes and cache everything the figures need.
-source("bh_model.R")
+source("R/ns_model.R")
 library(dplyr); library(tidyr)
 
-OUT <- "bh_results.rds"
+OUT <- "data/ns_residents.rds"
 
 p0 <- projectToSteady(setup(), t_max = 200, progress_bar = FALSE)  # unfished state
 sp <- species_params(p0)$species

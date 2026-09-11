@@ -98,9 +98,15 @@ Points where it differs from a stock mizer model:
    reproduces the assembly *procedure* of Appendix B, not the particular
    assemblage. The figures are comparable in kind, not number for number.
 
-## Unrelated files
+## A second test, on a real ecosystem
 
-`bh_model.R`, `bh_run.R`, `bh_figures.R`, `bh_rare*.R` and `bh_results.rds` are
-an earlier, separate exercise that applied the same three fishing rules to
-mizer's built-in North Sea model (`NS_params`). They are not part of this
-reimplementation and do not use the paper's ecosystem model.
+[`docs/north-sea.md`](docs/north-sea.md) applies the same three rules to mizer's
+built-in North Sea model, with real depleted North Sea species (thornback ray,
+Atlantic halibut) added at abundances derived from ICES IBTS survey data. It is
+a separate exercise — it does not use the paper's ecosystem model — and it asks
+a different question: does the conclusion survive contact with a calibrated
+ecosystem and measured abundances?
+
+Short answer: yes, but only once the ecosystem contains something capable of
+being lost, and the usual "most depleted species" diagnostic points the wrong
+way. Code in `R/ns_*.R`.

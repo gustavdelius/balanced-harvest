@@ -13,13 +13,13 @@
 # with the model's 1 mg egg (erepro 2100) and needs per-species w_min, which is
 # blocked by sizespectrum/mizer#610.
 
-source("bh_model.R")
-source("bh_interaction.R")
+source("R/ns_model.R")
+source("R/ns_interaction.R")
 library(dplyr)
 
-RARE    <- readRDS("rare_species_params.rds")
+RARE    <- readRDS("data/ns_species_params.rds")
 OBS     <- local({
-    o <- readRDS("rare_biomass_observed.rds")   # swept-area, NS-IBTS Q1 2015-2019
+    o <- readRDS("data/ns_biomass_observed.rds")   # swept-area, NS-IBTS Q1 2015-2019
     # NS_params sits 4.4x above the swept-area estimate for cod, the best
     # validated species, so observations are put on the model's own scale.
     o$biomass_observed / (o$biomass_observed[["Cod"]] / getBiomass(NS_params)[["Cod"]])
@@ -113,6 +113,6 @@ sweepRare <- function() {
 
 if (sys.nframe() == 0) {
     res <- sweepRare()
-    saveRDS(res, "bh_rare_results.rds")
-    message("wrote bh_rare_results.rds")
+    saveRDS(res, "data/ns_rare.rds")
+    message("wrote data/ns_rare.rds")
 }

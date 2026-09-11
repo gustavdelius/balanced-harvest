@@ -261,6 +261,20 @@ Rscript tests/test_convergence.R  # the numerical liberties taken
 Requires [mizer](https://sizespectrum.org/mizer/) (developed against 3.3.0.9000),
 ggplot2 and patchwork.
 
+## A second test, on a real ecosystem
+
+The ecosystems above are assembled inside the model, which is the right way to
+test the paper but says nothing about whether the result survives contact with a
+real one. [north-sea.md](north-sea.md) runs the same three rules on mizer's
+North Sea model with real depleted species — thornback ray and Atlantic halibut
+— added at abundances estimated from ICES IBTS survey data.
+
+The conclusion holds there too, but conditionally: `NS_params` as it ships has
+nothing capable of being lost, and BH<sub>P</sub> looks *worst* of the three
+until something at risk is put in. Halibut then goes from 2% of its unfished
+trajectory under a constant `F` to 540% under BH<sub>P</sub>, at equal yield,
+while BH<sub>P/B</sub> destroys the thornback ray.
+
 ## Caveats
 
 The ecosystems are not the paper's ecosystems — the assembly procedure is

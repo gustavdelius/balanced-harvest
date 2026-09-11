@@ -17,7 +17,7 @@ APHIA <- c("Thornback ray" = 105883, "Common skate" = 105869,
            "Dab" = 127139, "Whiting" = 126438, "Cod" = 126436, "Gurnard" = 127203)
 REFS  <- c("Dab", "Whiting", "Cod", "Gurnard")
 
-CACHE <- "datras_ns_ibts_q1.rds"
+CACHE <- "data/datras_ns_ibts_q1.rds"
 if (file.exists(CACHE)) {
     raw <- readRDS(CACHE)
 } else {
@@ -113,4 +113,4 @@ print(as.data.frame(chk), row.names = FALSE)
 obs <- setNames(cpue$tonnes * 1e6, cpue$species)   # grams
 saveRDS(list(cpue = cpue, biomass_observed = obs, years = YEARS,
              n_hauls = nrow(hh), swept_km2 = total_swept,
-             area_km2 = NS_AREA_KM2), "rare_biomass_observed.rds")
+             area_km2 = NS_AREA_KM2), "data/ns_biomass_observed.rds")

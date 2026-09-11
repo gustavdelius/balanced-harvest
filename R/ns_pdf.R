@@ -1,7 +1,7 @@
-# Figures for the balanced-harvesting illustration. Reads bh_results.rds.
+# Figures for the North Sea PDF. Reads data/ns_residents.rds.
 library(ggplot2); library(dplyr); library(tidyr); library(scales); library(ggrepel)
 
-r <- readRDS("bh_results.rds")
+r <- readRDS("data/ns_residents.rds")
 
 ## Design tokens ------------------------------------------------------------
 SURFACE <- "#fcfcfb"; INK <- "#0b0b0b"; INK2 <- "#52514e"; MUTED <- "#8a8984"
