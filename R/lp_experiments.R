@@ -15,10 +15,11 @@ source("R/lp_harvest.R")
 # matches that of fixed fishing at F_ref puts all rules on the same footing
 # before any sweeping, and costs nothing: Y(0) = c sum_i z_i g_i B_i(0).
 lp_base_const <- function(params, rule, zf = NULL, theta = NULL, alloc = NULL,
-                          F_ref = LP_FISHING$F_base, w_f = LP_FISHING$w_f) {
+                          F_ref = LP_FISHING$F_base, w_f = LP_FISHING$w_f,
+                          w_measure = NULL) {
     if (is.null(zf)) zf <- rep(1, nrow(species_params(params)))
     p <- lp_set_fishing(params, rule, 1, zf, w_f = w_f,
-                        theta = theta, alloc = alloc)
+                        theta = theta, alloc = alloc, w_measure = w_measure)
     n <- initialN(p)
     B <- lp_biomass(p, n)
     g <- lp_alloc(p, n, getEGrowth(p))
@@ -98,13 +99,14 @@ LP_MULTS <- c(0.1, 0.25, 0.5, 1, 2, 4, 8)
 lp_frontier <- function(params, rule, control, zf = NULL, theta = NULL,
                         alloc = NULL, mults = LP_MULTS,
                         F_ref = LP_FISHING$F_base, w_f = LP_FISHING$w_f,
+                        w_measure = NULL,
                         dt = 0.01, t_save = 5, label = rule) {
     if (is.null(zf)) zf <- rep(1, nrow(species_params(params)))
-    base <- lp_base_const(params, rule, zf, theta, alloc, F_ref, w_f)
+    base <- lp_base_const(params, rule, zf, theta, alloc, F_ref, w_f, w_measure)
     do.call(rbind, lapply(mults, function(m) {
         sim <- lp_harvest(params, rule, base * m, zf, dt = dt,
                           t_save = t_save, theta = theta, alloc = alloc,
-                          w_f = w_f)
+                          w_f = w_f, w_measure = w_measure)
         cbind(data.frame(rule = label, mult = m, const = base * m),
               lp_metrics(lp_track(sim), control))
     }))
@@ -143,3 +145,45 @@ lp_at_yield <- function(front, metric, y) {
 
 # The largest terminal yield a rule reaches anywhere on its frontier.
 lp_max_yield <- function(front) max(front$yield, na.rm = TRUE)
+
+## --- Phase 4: the rule as it would actually be implemented -----------------
+# The rules above recompute F_i at every time step from perfectly known P_i and
+# B_i.  A real harvest control rule is updated periodically from survey
+# estimates.  lp_harvest_periodic() projects in segments of `interval` years:
+# at the start of each segment it observes the state, optionally corrupts the
+# observation with log-normal error of log-scale s.d. `sigma` (mean-preserving),
+# freezes F_i at that value, and projects the segment.
+#
+#   g_hat_i = g_i(t_k) * exp(eta_ik),   eta_ik ~ N(-sigma^2/2, sigma^2)
+#
+# `interval = 0` means continuous updating, i.e. the idealised rule used above.
+lp_harvest_periodic <- function(params, rule, const, zf = NULL, interval = 0,
+                                sigma = 0, t_max = LP_FISHING$t_max,
+                                dt = 0.01, t_save = 5, seed = NULL) {
+    if (is.null(zf)) zf <- rep(1, nrow(species_params(params)))
+    if (interval <= 0 && sigma == 0)
+        return(lp_track(lp_harvest(params, rule, const, zf, t_max = t_max,
+                                   dt = dt, t_save = t_save)))
+    if (!is.null(seed)) set.seed(seed)
+    p <- params
+    t0 <- 0
+    out <- list()
+    while (t0 < t_max - 1e-9) {
+        len <- min(interval, t_max - t0)
+        pp <- lp_set_fishing(p, rule, const, zf)
+        g  <- lp_alloc(pp, initialN(pp), getEGrowth(pp))
+        g[!is.finite(g)] <- 0
+        if (sigma > 0)
+            g <- g * exp(rnorm(length(g), -sigma^2 / 2, sigma))
+        pf  <- lp_set_fishing(p, "frozen", const, zf, alloc = g)
+        sim <- project(pf, t_max = len, dt = dt, t_save = min(t_save, len),
+                       progress_bar = FALSE)
+        tr <- lp_track(sim)
+        tr$time <- tr$time + t0
+        if (t0 > 0) tr <- subset(tr, time > t0 + 1e-9)
+        out[[length(out) + 1]] <- tr
+        p  <- finalParams(sim)
+        t0 <- t0 + len
+    }
+    do.call(rbind, out)
+}

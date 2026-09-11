@@ -78,15 +78,20 @@ lp_yield <- function(params, n, e_growth, t = 0) {
 #                                          BHPB sits at theta slightly negative
 #   frozen  g_i = a fixed vector           separates the allocation across
 #                                          species from the feedback over time
+# P_i and B_i are measured from `lp_jm`, which the paper sets equal to the
+# harvested range (`lp_jf`).  Keeping them separate lets the measurement range
+# be varied without changing what is caught (robustness.md item 11).
 lp_alloc <- function(params, n, e_growth) {
     op <- other_params(params)
+    jm <- if (is.null(op$lp_jm)) op$lp_jf else op$lp_jm
     switch(op$lp_rule,
         none   = rep(0, nrow(n)),
         fixed  = rep(1, nrow(n)),
-        BHP    = lp_production(params, n, e_growth),
-        BHPB   = lp_production(params, n, e_growth) / lp_biomass(params, n),
-        BHB    = lp_biomass(params, n),
-        power  = lp_biomass(params, n)^op$lp_theta,
+        BHP    = lp_production(params, n, e_growth, jm),
+        BHPB   = lp_production(params, n, e_growth, jm) /
+                     lp_biomass(params, n, jm),
+        BHB    = lp_biomass(params, n, jm),
+        power  = lp_biomass(params, n, jm)^op$lp_theta,
         frozen = op$lp_alloc,
         stop("unknown fishing rule: ", op$lp_rule))
 }
@@ -116,9 +121,11 @@ lpFMort <- function(params, n, n_pp, n_other, t = 0, effort,
 lp_set_fishing <- function(params, rule, const = 0,
                            zf = rep(1, nrow(species_params(params))),
                            w_f = LP_FISHING$w_f,
-                           theta = NULL, alloc = NULL) {
+                           theta = NULL, alloc = NULL, w_measure = NULL) {
     jf <- lp_wf_idx(params, w_f)
     other_params(params)$lp_jf    <- jf
+    other_params(params)$lp_jm    <- if (is.null(w_measure)) jf
+                                     else lp_wf_idx(params, w_measure)
     other_params(params)$lp_sel   <- as.numeric(seq_along(w(params)) >= jf)
     other_params(params)$lp_rule  <- rule
     other_params(params)$lp_const <- const
@@ -154,8 +161,8 @@ lp_harvest <- function(params, rule, const = 0,
                        zf = rep(1, nrow(species_params(params))),
                        t_max = LP_FISHING$t_max, dt = LP_NUMERICS$dt,
                        t_save = 1, theta = NULL, alloc = NULL,
-                       w_f = LP_FISHING$w_f) {
+                       w_f = LP_FISHING$w_f, w_measure = NULL) {
     p <- lp_set_fishing(params, rule, const, zf, w_f = w_f,
-                        theta = theta, alloc = alloc)
+                        theta = theta, alloc = alloc, w_measure = w_measure)
     project(p, t_max = t_max, dt = dt, t_save = t_save, progress_bar = FALSE)
 }
