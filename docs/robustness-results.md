@@ -14,7 +14,7 @@ yield-biodiversity frontier was computed, and they never cross. The effect size
 varies fourfold across ecosystems (median 2.4×, range 1.3–5.2×), so
 single-ecosystem figures should be read as illustrative.
 
-**What it depends on.** Two of the paper's modelling choices carry the result.
+**What it depends on.** Three of the paper's choices carry the result.
 Imposing a stock-recruitment relationship on the published ecosystem, holding
 the community exactly fixed, shrinks BH<sub>P</sub>'s advantage from 3.4× to
 1.0×: the density dependence the harvest rule supplies is largely redundant with
@@ -23,7 +23,10 @@ the latter by deliberate design. And the plankton cannot be made contestable
 without destroying the large-bodied community the paper harvests at all —
 richness falls from 15 species to 5 and nothing reaches the 400 g entry size —
 so the inexhaustible resource is doing more work than merely suppressing the
-recruitment brake.
+recruitment brake. The third is the 400 g entry size: the conclusion holds at
+every entry size tested, but the advantage runs from 1.2× at 100 g to 3.7× at
+800 g, because raising the entry size is what creates the recruitment
+overfishing that the feedback then prevents.
 
 **What is not the mechanism the paper describes.** $$F$$ proportional to
 *biomass* matches or beats $$F$$ proportional to production in all thirteen
@@ -38,6 +41,12 @@ did most of the work. Freezing BH<sub>P</sub>'s year-0 allocation recovers a
 median of only 38% of the benefit, with a range from −4.7 to +0.9, and is often
 worse than fishing everything at the same rate. The feedback is what stops the
 allocation going stale.
+
+**What would make it work better.** Measuring $$P$$ and $$B$$ over the whole
+life cycle rather than only the harvested range improves both balanced-harvesting
+rules, and improves BH<sub>P/B</sub> threefold — so part of that rule's poor
+showing in the paper comes from the restricted measurement window rather than
+from the idea of a constant exploitation ratio.
 
 **How it would fare in practice.** The feedback tolerates infrequent updating
 remarkably well — every 5, 10, even 25 years is as good as continuous, because
@@ -698,6 +707,80 @@ question this model cannot answer, but the paper's own discussion concedes that
 for which information on biomass, production rate and fishing mortality is most
 likely to be scarce" — and it is precisely the rare species that the rule has to
 get right.
+
+## Phase 3 items 10 and 11 — the fishery's design
+
+Both of these change the fishery without touching the ecosystem, so the same
+five assembled communities are used throughout.
+
+### Item 10: the entry size $$w_f$$
+
+The paper fishes every species from 400 g upwards and flags the single shared
+knife edge as a simplification. Combined with a fixed $$w_{\mathrm{mat}} =
+w_{\max}/10$$ it means a 1 kg species is fished only as an adult while a 40 kg
+species is fished for a decade before it breeds, so some of "large species are
+vulnerable" may be built into the design rather than discovered.
+
+| $$w_f$$ | reference yield | fixed *F* | BH<sub>P</sub> | BH<sub>P/B</sub> | advantage | readable |
+|---|---|---|---|---|---|---|
+| 100 g | 0.525 | 0.542 | 0.647 | 0.356 | 1.18× [1.06, 1.27] | 5/5 |
+| 200 g | 0.476 | 0.478 | 0.691 | 0.272 | 1.37× [1.17, 2.50] | 5/5 |
+| **400 g (published)** | 0.354 | 0.298 | 0.635 | 0.162 | **1.92× [1.44, 3.41]** | 4/5 |
+| 800 g | 0.204 | 0.206 | 0.686 | 0.092 | 3.71× [1.81, 3.77] | 3/5 |
+
+**The conclusion holds at every entry size, but its size depends strongly on
+$$w_f$$.** BH<sub>P</sub> beats fixed *F* in every ecosystem at every entry size
+tested. But the advantage grows from 1.18× at 100 g to 3.71× at 800 g — roughly
+threefold across the range, with the paper's 400 g sitting in the middle.
+
+The reason is visible in the columns: BH<sub>P</sub>'s own outcome barely moves
+(0.647, 0.691, 0.635, 0.686) while **fixed *F* degrades sharply** (0.542 down to
+0.206). Raising $$w_f$$ concentrates fishing on the species with the longest
+juvenile phase relative to the entry size, which is exactly where a constant
+$$F$$ causes recruitment overfishing — and exactly what BH<sub>P</sub>'s
+feedback arrests, since those species' $$F$$ falls as they decline. So the
+choice of entry size is not neutral: it sets how much damage there is for the
+feedback to prevent. At a low entry size, where nearly everything is fished
+across most of its life, balanced harvesting has little left to offer.
+
+(The 800 g row rests on three ecosystems and the 400 g row on four: with only
+three intensities sampled here, the reference yield is not always bracketed.
+Where it is not, the rule genuinely could not reach that yield within the
+sampled range.)
+
+### Item 11: the range over which $$P$$ and $$B$$ are measured
+
+The paper measures $$P_i$$ and $$B_i$$ over the harvested range only, on the
+grounds that "reliable information is most likely to be available over this
+range". That makes $$P_i$$ exclude juvenile production — most of a species'
+somatic production — and, for a species whose $$w_{\max}$$ is not far above
+$$w_f$$, makes it dominated by the boundary influx term at $$w_f$$. Here the
+measurement range is instead the whole life cycle, with the harvested range left
+at 400 g, so only the rule's *information* changes and not what is caught.
+
+| $$P, B$$ measured over | fixed *F* | BH<sub>P</sub> | BH<sub>P/B</sub> | advantage |
+|---|---|---|---|---|
+| harvested range (published) | 0.298 | 0.635 | 0.162 | 1.92× [1.44, 3.41] |
+| whole life cycle | 0.298 | **0.748** | **0.487** | **2.40× [1.63, 4.96]** |
+
+**Both balanced-harvesting rules do better on whole-life-cycle information, and
+BH<sub>P/B</sub> dramatically so** — its worst-affected species goes from 0.162
+to 0.487, a threefold improvement, purely from measuring the same quantities
+over a wider range.
+
+That is worth dwelling on, because BH<sub>P/B</sub> is the rule the paper
+argues against. Part of its poor showing comes not from the idea of a constant
+exploitation ratio but from the restricted measurement window: $$P_i/B_i$$
+computed over $$[w_f, w_{\max,i}]$$ is nearly the same for every species, which
+is precisely why the paper finds it barely distinguishable from a constant
+$$F$$. Computed over the whole life cycle it varies much more between species —
+small, fast-turnover species have genuinely higher $$P/B$$ — so the rule becomes
+discriminating and much less harmful. BH<sub>P</sub> still wins, but the gap
+narrows from 3.9× to 1.5× on the worst-species measure.
+
+The paper's data-availability argument for the restricted range is reasonable as
+far as it goes, but this suggests the restriction is not cost-free: it degrades
+both rules, and it exaggerates the difference between them.
 
 ## Still to do
 

@@ -243,7 +243,9 @@ absence of compensatory recruitment, whether `F ∝ B` would do just as well as
 `F ∝ P`, and whether the *adaptive feedback* or merely the *initial allocation*
 is doing the work — and sets out an investigation.
 
-**[robustness-results.md](robustness-results.md) reports what came out of it.**
+**[robustness-results.md](robustness-results.md) reports what came out of it** —
+phases 1, 2, 4 and 5 and Phase 3 items 8, 8b, 10 and 11, across up to thirteen
+independently assembled ecosystems.
 In short: the calibration criterion turns out not to matter (the frontiers never
 cross, and I was wrong to call it the most load-bearing choice); $$F$$
 proportional to *biomass* does everything $$F$$ proportional to production does;
@@ -256,7 +258,8 @@ ecosystem while holding the community exactly fixed shrinks
 BH<sub>P</sub>'s advantage over fixed $$F$$ from 3.4× to 1.0×. Replicated over
 thirteen independently assembled ecosystems, the ranking
 BH<sub>P</sub> > fixed > BH<sub>P/B</sub> holds 13 times out of 13, with the
-advantage varying fourfold (median 2.4×).
+advantage varying fourfold (median 2.4×). The feedback tolerates being updated
+only once a decade, but not observation error much beyond a factor of two.
 
 One finding from that work is already in hand. Appendix B nominates competition
 among larvae for plankton as the mechanism that replaces an imposed
