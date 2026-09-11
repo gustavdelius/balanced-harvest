@@ -2,3 +2,9 @@ title: Fishing for biodiversity by balanced harvesting
 description: A mizer reimplementation of Law & Plank (2023), Fish and Fisheries
 theme: jekyll-theme-cayman
 show_downloads: false
+
+# kramdown's default math engine wraps $$...$$ in <script type="math/tex">,
+# which MathJax 2 consumes directly.  This protects the maths from markdown
+# processing, so underscores and asterisks inside equations are safe.
+kramdown:
+  math_engine: mathjax

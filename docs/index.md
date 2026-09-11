@@ -291,3 +291,11 @@ histories are not reported. Four ecosystems is a small sample for a claim about
 assemblages in general. And the comparison rests on a single calibration
 criterion; the trade-off frontier proposed in [robustness.md](robustness.md)
 would be a stronger design than the one used here and in the paper.
+
+---
+
+A rendering check: $$F_i(t) = c\,z_i\,g_i(t)$$ inline, and displayed:
+
+$$
+P_i(t) = \int_{w_f}^{w_{\infty,i}} g_i(w,t)\,N_i(w,t)\,dw
+$$
