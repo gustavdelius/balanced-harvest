@@ -1,0 +1,18 @@
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rcheck/
+
+# Regenerable intermediate results (rebuilt by run_figures.R from
+# data/ecosystems.rds; delete to force a rerun)
+data/cache/
+
+# Editor / tooling
+.vscode/
+.posit/
+
+# Third-party survey data downloaded for the separate North Sea exercise.
+# Not redistributed here; re-download it rather than committing it.
+datras_ns_ibts_q1.rds

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "files": {
+    "analyse-and-plot/SKILL.md": "ab8c616bd29cec568f1e6d93bf3860a0",
+    "analyse-stability/SKILL.md": "37eb7697d6be2517af3265cc65263638",
+    "build-model/SKILL.md": "07e5191200de6055149c61fe42bad8a5",
+    "calibrate-model/SKILL.md": "36de94603bdaf2e766ff9928af974475",
+    "change-parameters/SKILL.md": "f30ff1eea119061d190494623723322e",
+    "create-extension-package/SKILL.md": "e8a835c5a64b634c34d00e745d42a25f",
+    "extend-mizer/SKILL.md": "ccc95bb31551f980c1010679b0f85915",
+    "run-simulation/SKILL.md": "885671c0283839da5fd34d2fa068ec17",
+    "set-up-fishing/SKILL.md": "d69d9b7b290991445e4198e727ea04d4",
+    "understand-size-spectrum-dynamics/SKILL.md": "c3c57a1e4161fb539cfc30c58e850c64",
+    "upgrade-mizer-code/references/mizer-3.0.md": "d72352246ceca6799265d77896476681",
+    "upgrade-mizer-code/references/mizer-3.1.md": "c5d06ea8b65a86af99dae5ed5a4a9880",
+    "upgrade-mizer-code/references/mizer-3.2.md": "87f6c0e9363d35fa13f955de3973ab19",
+    "upgrade-mizer-code/references/mizer-3.3.md": "7e27ab1df7c066447d7618595da351d0",
+    "upgrade-mizer-code/references/mizer-3.4.md": "4103f2a917ad3a2918662d741584f970",
+    "upgrade-mizer-code/SKILL.md": "e2bcad75a675211aefa162ade84cc9e2",
+    "use-extension-packages/SKILL.md": "d9da09a9d7572bf93d8c145bd8981ce9"
+  }
+}
