@@ -1,31 +1,54 @@
 # Robustness investigation: results
 
-What came out of the plan in [robustness.md](robustness.md). Phases 1, 2 and 5
-and Phase 3 items 8 and 8b are complete. Everything below is measured, not argued.
+What came out of the plan in [robustness.md](robustness.md). Phases 1, 2, 4 and
+5 are complete, as are Phase 3 items 8, 8b, 10 and 11. Everything below is
+measured, not argued, and where a measurement contradicts something I wrote
+earlier in the plan or in an earlier phase, the correction is stated rather than
+quietly applied.
 
-Three headline results:
+**What survives.** The paper's qualitative conclusion is robust. Replicated over
+thirteen independently assembled ecosystems, the ranking
+BH<sub>P</sub> > fixed *F* > BH<sub>P/B</sub> holds **13 times out of 13**, and
+it does not depend on how yields are matched: each rule's whole
+yield-biodiversity frontier was computed, and they never cross. The effect size
+varies fourfold across ecosystems (median 2.4×, range 1.3–5.2×), so
+single-ecosystem figures should be read as illustrative.
 
-1. The calibration criterion the plan called "the single most load-bearing
-   arbitrary choice" does not matter at all. The rules' yield-biodiversity
-   frontiers never cross.
-2. Production is not the active ingredient. $$F$$ proportional to *biomass* does everything $$F$$ proportional to
-   production does, and about three-quarters of
-   the benefit comes from the initial allocation across species rather than
-   from the adaptive feedback the paper emphasises.
-3. The plankton cannot be made contestable without destroying the large-bodied
-   community the paper harvests - and in the communities that survive doing so,
-   BH<sub>P</sub>'s advantage inverts.
-4. Imposing a stock-recruitment relationship on the published ecosystem, holding
-   the community exactly fixed, shrinks BH<sub>P</sub>'s advantage from 3.4x to
-   1.0x. The paper's result is contingent on its deliberate choice to have no
-   compensatory recruitment.
-5. Replicated over thirteen ecosystems, the ranking
-   BH<sub>P</sub> > fixed > BH<sub>P/B</sub> holds 13 times out of 13, with the
-   advantage varying fourfold (median 2.4x). The adaptive feedback turns out to
-   be essential after all - a frozen allocation is erratic and often worse than
-   uniform fishing, correcting what point 2 above looked like on one ecosystem.
+**What it depends on.** Two of the paper's modelling choices carry the result.
+Imposing a stock-recruitment relationship on the published ecosystem, holding
+the community exactly fixed, shrinks BH<sub>P</sub>'s advantage from 3.4× to
+1.0×: the density dependence the harvest rule supplies is largely redundant with
+the density dependence a real population already has, and the model has none of
+the latter by deliberate design. And the plankton cannot be made contestable
+without destroying the large-bodied community the paper harvests at all —
+richness falls from 15 species to 5 and nothing reaches the 400 g entry size —
+so the inexhaustible resource is doing more work than merely suppressing the
+recruitment brake.
 
-Reproduce with `Rscript run_robustness.R` and `Rscript run_resource_sweep.R`.
+**What is not the mechanism the paper describes.** $$F$$ proportional to
+*biomass* matches or beats $$F$$ proportional to production in all thirteen
+ecosystems, so production is a proxy for biomass rather than the active
+ingredient — which matters, since biomass is far easier to estimate. Within the
+family $$F_i \propto B_i^{\theta}$$ the benefit saturates by $$\theta = 0.5$$:
+only the sign and rough magnitude of the density dependence matter.
+
+**What is the mechanism.** The adaptive feedback, and it took thirteen
+ecosystems to establish that — on one it looked as though the initial allocation
+did most of the work. Freezing BH<sub>P</sub>'s year-0 allocation recovers a
+median of only 38% of the benefit, with a range from −4.7 to +0.9, and is often
+worse than fishing everything at the same rate. The feedback is what stops the
+allocation going stale.
+
+**How it would fare in practice.** The feedback tolerates infrequent updating
+remarkably well — every 5, 10, even 25 years is as good as continuous, because
+the ecosystem's own timescale is decades. It does not tolerate bad estimates:
+with observation error of log-scale s.d. 1.0, BH<sub>P</sub> becomes *worse*
+than fixed *F* on average. It protects against structural uncertainty, not
+observational uncertainty.
+
+Reproduce with `run_robustness.R` (phases 1, 2), `run_resource_sweep.R`
+(item 8b), `run_recruitment.R` (item 8), `run_replication.R` (phase 5),
+`run_implementation.R` (phase 4) and `run_fishery_design.R` (items 10, 11).
 
 ---
 
@@ -614,6 +637,67 @@ from a spurious $$7\times10^{-8}$$ low end to 0.036, and moved the
 frozen-versus-fixed count from 6/12 to 8/12. Re-deriving Phases 1 and 2 with the
 corrected reader leaves every number in them unchanged, because their reference
 yields sit on the ascending branch in all cases.
+
+## Phase 4 — the rule tolerates infrequent updating, but not bad estimates
+
+Phase 5 established that the adaptive feedback, not the initial allocation, is
+what makes BH<sub>P</sub> work. That makes it matter how well the feedback
+survives being applied the way a real fishery would apply it: recalculated every
+few years from survey estimates, rather than continuously from perfect
+knowledge. Two degradations were imposed together on five ecosystems — an update
+interval, and mean-preserving log-normal error of log-scale s.d. $$\sigma$$
+redrawn independently at every update.
+
+BH<sub>P</sub>'s advantage over fixed *F* in the worst-affected species:
+
+| update interval | $$\sigma$$ | advantage, median [range] |
+|---|---|---|
+| continuous | 0 | 1.78× [1.27, 3.41] |
+| 5 yr | 0 | 1.78× [1.27, 3.40] |
+| 10 yr | 0 | 1.78× [1.29, 3.39] |
+| 25 yr | 0 | 2.06× [1.51, 3.45] |
+| never (set once at year 0) | 0 | 1.35× [0.92, 2.47] |
+| 5 yr | 0.5 | 1.81× [0.66, 3.14] |
+| 10 yr | 0.5 | 1.76× [0.66, 2.11] |
+| 5 yr | 1.0 | **0.73× [0.00, 1.44]** |
+
+**Updating frequency barely matters.** Recalculating $$F_i$$ every 5 or 10 years
+is indistinguishable from recalculating it continuously — the worst-species
+outcome on eco1 moves from 0.566 to 0.564 to 0.563. Even a 25-year interval is
+fine. Only never revising the allocation degrades the rule, to 1.35× and as low
+as 0.92× — worse than fishing everything at the same rate.
+
+This is a genuinely encouraging result for the paper's policy claim, and the
+reason is that the ecosystem's own timescale is long: the fished trajectories in
+Fig. 3 take decades to develop, so a ten-year-old estimate of $$P_i$$ is still
+nearly right. A decadal survey cycle is enough to keep the feedback alive. What
+fails is not slow updating but *no* updating.
+
+**Estimate quality matters much more.** At $$\sigma = 0.5$$ — a typical
+estimate wrong by a factor of about 1.65 — the median advantage is untouched,
+but the range now reaches 0.66, meaning that in one ecosystem out of five
+BH<sub>P</sub> ends up *worse* than uniform fishing. At $$\sigma = 1.0$$, a
+factor of about 2.7, the median advantage falls to **0.73×**: on balance worse
+than fixed *F*, and in one ecosystem the worst species is driven to
+$$4\times10^{-4}$$ of its unfished trajectory.
+
+The asymmetry between the two is worth stating plainly, because it is the
+opposite of what the paper's framing suggests. Law & Plank present the adaptive
+feedback as protection "in the presence of uncertainty about how marine
+ecosystems work". It is protection against *structural* uncertainty — not
+knowing how the system will respond — because the rule simply follows whatever
+the state turns out to be. It is not protection against *observational*
+uncertainty: a species whose production is over-estimated is fished
+proportionally harder, with nothing in the rule to arrest it, so estimation
+error feeds straight through into mis-allocated mortality. Fixed *F* has no such
+exposure, because it never consults an estimate at all.
+
+Whether $$\sigma = 0.5$$ or $$1.0$$ is the realistic figure is an empirical
+question this model cannot answer, but the paper's own discussion concedes that
+"the rare species of special importance for conservation are also the species
+for which information on biomass, production rate and fishing mortality is most
+likely to be scarce" — and it is precisely the rare species that the rule has to
+get right.
 
 ## Still to do
 
