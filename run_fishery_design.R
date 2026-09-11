@@ -55,7 +55,8 @@ fronts <- do.call(rbind, mclapply(seq_len(nrow(jobs)), function(i) {
           measure = ifelse(is.na(cfg$w_m), "harvested", "whole life cycle"),
           cached(sprintf("%s_%s_%s", k, cfg$label, r),
                  lp_frontier(p, r, ctrl, mults = MULTS, F_ref = 0.1,
-                             w_f = cfg$w_f, w_measure = cfg$w_m)))
+                             w_f = cfg$w_f,
+                             w_measure = if (is.na(cfg$w_m)) NULL else cfg$w_m)))
 }, mc.cores = NCORES, mc.preschedule = FALSE))
 
 ## --- read each configuration at its own reference yield ---------------------

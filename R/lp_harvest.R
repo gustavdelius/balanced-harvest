@@ -124,7 +124,9 @@ lp_set_fishing <- function(params, rule, const = 0,
                            theta = NULL, alloc = NULL, w_measure = NULL) {
     jf <- lp_wf_idx(params, w_f)
     other_params(params)$lp_jf    <- jf
-    other_params(params)$lp_jm    <- if (is.null(w_measure)) jf
+    # NA is treated like NULL: "measure over the harvested range", as the paper
+    # does.  Without this an NA would silently become an NA index.
+    other_params(params)$lp_jm    <- if (is.null(w_measure) || is.na(w_measure)) jf
                                      else lp_wf_idx(params, w_measure)
     other_params(params)$lp_sel   <- as.numeric(seq_along(w(params)) >= jf)
     other_params(params)$lp_rule  <- rule
