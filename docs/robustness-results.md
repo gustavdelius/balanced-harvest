@@ -1,7 +1,7 @@
 # Robustness investigation: results
 
 What came out of the plan in [robustness.md](robustness.md). Phases 1 and 2 and
-Phase 3 item 8b are complete. Everything below is measured, not argued.
+Phase 3 items 8 and 8b are complete. Everything below is measured, not argued.
 
 Three headline results:
 
@@ -14,7 +14,11 @@ Three headline results:
    from the adaptive feedback the paper emphasises.
 3. The plankton cannot be made contestable without destroying the large-bodied
    community the paper harvests - and in the communities that survive doing so,
-   BH<sub>P</sub>'s advantage disappears and inverts.
+   BH<sub>P</sub>'s advantage inverts.
+4. Imposing a stock-recruitment relationship on the published ecosystem, holding
+   the community exactly fixed, shrinks BH<sub>P</sub>'s advantage from 3.4x to
+   1.0x. The paper's result is contingent on its deliberate choice to have no
+   compensatory recruitment.
 
 Reproduce with `Rscript run_robustness.R` and `Rscript run_resource_sweep.R`.
 
@@ -460,6 +464,65 @@ The clean test is Phase 3 item 8: impose a Beverton-Holt stock-recruitment
 relationship on the *published* ecosystem, where the community is held fixed
 and only the density dependence changes. That is the experiment to run next, and
 this result raises its priority considerably.
+
+## Phase 3 item 8 — the result is contingent on the absence of compensatory recruitment
+
+This is the experiment item 8b could not do. `setBevertonHolt()` imposes a
+stock-recruitment relationship on the *published* ecosystem while rescaling
+`erepro` so that the initial state is preserved exactly — verified to
+$$2\times10^{-4}$$ — so the community, its 15 species, its size structure and
+its steady state are **identical across the whole sweep**. Only the sensitivity
+of recruitment to egg production changes, from
+$$d\ln R_{dd}/d\ln R_{di} = 1$$ at $$L = 0$$ (the paper) to $$0.1$$ at
+$$L = 0.9$$.
+
+Worst-affected species, as a fraction of its unfished trajectory, at matched
+terminal yield:
+
+| $$L$$ | recruitment elasticity $$1-L$$ | fixed *F* | BH<sub>P</sub> | BH<sub>P/B</sub> | BH<sub>P</sub> advantage |
+|---|---|---|---|---|---|
+| 0 (the paper) | 1.00 | 0.166 | 0.566 | 0.061 | **3.41×** |
+| 0.25 | 0.75 | 0.337 | 0.703 | 0.170 | 2.09× |
+| 0.50 | 0.50 | 0.603 | 0.777 | 0.395 | 1.29× |
+| 0.75 | 0.25 | 0.778 | 0.824 | 0.635 | 1.06× |
+| 0.90 | 0.10 | 0.834 | 0.846 | 0.730 | **1.01×** |
+
+**The advantage closes monotonically and essentially vanishes.** At the paper's
+$$L = 0$$, BH<sub>P</sub> leaves its worst species 3.4 times better off than
+fixed *F* does. By $$L = 0.5$$ — where halving egg production still costs 29% of
+recruitment, which is mild compensation by the standards of fitted
+stock-recruitment relationships — the factor is 1.29. By $$L = 0.9$$ it is 1.01.
+The same happens to the whole-assemblage measure: the RMS-log ratio between
+fixed *F* and BH<sub>P</sub> falls from 2.31 to 1.42. And the species that
+BH<sub>P/B</sub> drives below 10% of control at $$L = 0$$ — 2.6 of them — are
+all rescued by $$L = 0.25$$ alone, with no change to the harvest rule at all.
+
+So the density dependence that BH<sub>P</sub> supplies through the harvest rule
+is largely redundant with the density dependence that a stock-recruitment
+relationship supplies through the population. The paper's model has none of the
+latter, by deliberate design, and that is why the former looks so valuable.
+
+**This also reconciles item 8b.** There the ranking *inverted*; here it does not
+— BH<sub>P</sub> stays nominally best at every level, just by a shrinking
+margin. The inversion in item 8b is therefore attributable to the community
+change (a 5-species assemblage of fish under 360 g) rather than to the
+recruitment brake itself. Two experiments that looked like they disagreed
+actually separate cleanly: the brake shrinks the advantage, the community change
+reverses it.
+
+**One caveat on the far end of the sweep.** Preserving the steady state requires
+$$\mathrm{erepro}(L) = \mathrm{erepro}(0)/(1-L)$$, so $$L = 0.9$$ needs
+$$\mathrm{erepro} = 4.0$$, i.e. a reproductive efficiency
+$$\epsilon_R = 2.0 > 1$$ — more egg mass than the energy budget allows. That
+row is a limiting case, not a plausible parameterisation. The physically
+comfortable range is $$L \le 0.5$$ ($$\epsilon_R \le 0.4$$), and the advantage
+is already down to 1.29× there.
+
+A side effect worth recording: compensation also damps the model's own
+transients. Maximum unfished drift over 50 years falls from 83% at $$L = 0$$ to
+21% at $$L = 0.9$$, which is further evidence that the quasi-equilibrium the
+paper starts from is as unsettled as it is partly *because* recruitment is
+uncompensated.
 
 ## Still to do
 

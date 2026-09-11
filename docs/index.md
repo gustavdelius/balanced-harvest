@@ -245,11 +245,14 @@ is doing the work — and sets out an investigation.
 
 **[robustness-results.md](robustness-results.md) reports what came out of it.**
 In short: the calibration criterion turns out not to matter (the frontiers never
-cross, and I was wrong to call it the most load-bearing choice); `F` proportional
-to *biomass* does everything `F` proportional to production does; about
-three-quarters of the benefit is the initial allocation across species rather
-than the adaptive feedback; and the plankton cannot be made contestable without
-destroying the large-bodied community the paper harvests.
+cross, and I was wrong to call it the most load-bearing choice); $$F$$
+proportional to *biomass* does everything $$F$$ proportional to production does;
+about three-quarters of the benefit is the initial allocation across species
+rather than the adaptive feedback; the plankton cannot be made contestable
+without destroying the large-bodied community the paper harvests; and, most
+consequentially, imposing a stock-recruitment relationship on the published
+ecosystem while holding the community exactly fixed shrinks
+BH<sub>P</sub>'s advantage over fixed $$F$$ from 3.4× to 1.0×.
 
 One finding from that work is already in hand. Appendix B nominates competition
 among larvae for plankton as the mechanism that replaces an imposed
