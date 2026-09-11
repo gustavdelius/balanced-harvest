@@ -17,21 +17,28 @@ mortality rate of species *i*:
 
 | | rule | |
 |---|---|---|
-| fixed | `F_i(t) = F` | Eq. (2.7) |
-| BH<sub>P</sub> | `F_i(t) = c_P · P_i(t)` | Eq. (2.8) |
-| BH<sub>P/B</sub> | `F_i(t) = c_P/B · P_i(t)/B_i(t)` | Eq. (2.9) |
+| fixed | $$F_i(t) = F$$ | Eq. (2.7) |
+| BH<sub>P</sub> | $$F_i(t) = c_P\,P_i(t)$$ | Eq. (2.8) |
+| BH<sub>P/B</sub> | $$F_i(t) = c_{P/B}\,P_i(t)/B_i(t)$$ | Eq. (2.9) |
 
-Every fish enters a single mixed-species fishery at `w_f = 400 g`, and
-everything above that is caught at the same rate, so `F` is size-independent and
-the balancing is **across species, not across sizes**. `B_i` and `P_i` are
-measured over that same harvested range. `c_P/B` is simply a fixed exploitation
-ratio `E = Y_i/P_i` applied to every species.
+Every fish enters a single mixed-species fishery at $$w_f = 400\,\mathrm{g}$$,
+and everything above that is caught at the same rate, so $$F$$ is
+size-independent and the balancing is **across species, not across sizes**.
+$$B_i$$ and $$P_i$$ are measured over that same harvested range, and
+$$c_{P/B}$$ is simply a fixed exploitation ratio $$E = Y_i/P_i$$ applied to
+every species.
 
 The argument is that because biomass and production rate are tightly coupled
-across species (`B_i ~ P_i^α` with α near 1), setting `F_i ∝ P_i` makes fishing
-mortality roughly proportional to biomass — so it falls away as a stock falls.
-Fixed `F` has no such feedback, and `P_i/B_i` barely changes as a stock thins,
-so BH<sub>P/B</sub> has almost none either.
+across species,
+
+$$
+B_i \sim P_i^{\alpha}, \qquad \alpha \approx 1,
+$$
+
+setting $$F_i \propto P_i$$ makes fishing mortality roughly proportional to
+biomass, so it falls away as a stock falls. Fixed $$F$$ has no such feedback,
+and $$P_i/B_i$$ barely changes as a stock thins, so BH<sub>P/B</sub> has almost
+none either.
 
 ## Is this really the paper's model?
 
@@ -54,12 +61,12 @@ fitted to them:
 
 | | this reimplementation | Law & Plank |
 |---|---|---|
-| α in `B ~ P^α` (four ecosystems) | **0.977, 0.998, 0.993, 0.984** | 1.004 |
-| `c_P` calibrated against `F = 0.1` | **0.906** m² g⁻¹ | 1 |
-| `c_P/B` calibrated against `F = 0.1` | **0.259** | 0.25 |
+| $$\alpha$$ in $$B \sim P^{\alpha}$$ (four ecosystems) | **0.977, 0.998, 0.993, 0.984** | 1.004 |
+| $$c_P$$ calibrated against $$F = 0.1$$ | **0.906** m² g⁻¹ | 1 |
+| $$c_{P/B}$$ calibrated against $$F = 0.1$$ | **0.259** | 0.25 |
 
-α matters most: it is the exponent the whole Figure 4 argument rests on
-("species were near a line of slope 1 + α = 2.004"), it is set by how much
+$$\alpha$$ matters most: it is the exponent the whole Figure 4 argument rests
+on ("species were near a line of slope $$1+\alpha = 2.004$$"), it is set by how much
 adult mortality the model has, and it emerges here from four independently
 assembled ecosystems.
 
@@ -74,7 +81,7 @@ anything below 2×10⁻⁶ g m⁻², until 15 species coexist.
 |---|---|---|---|---|---|
 | species | 15 | 15 | 15 | 15 | 15 |
 | invasion attempts | 23 | 25 | 30 | 33 | 25, 24, 19, 45 |
-| `w_max` range | 327 g – 13.6 kg | 860 g – 9.3 kg | 459 g – 14.5 kg | 566 g – 22.3 kg | 100 g – 40 kg |
+| $$w_{\max}$$ range | 327 g – 13.6 kg | 860 g – 9.3 kg | 459 g – 14.5 kg | 566 g – 22.3 kg | 100 g – 40 kg |
 | biomass span | 5.8 decades | 3.0 | 3.8 | 7.8 | ~4 |
 | cor(log B, log P) | 0.999 | 0.998 | 0.997 | 1.000 | — |
 | primary production (g m⁻² yr⁻¹) | 4310 | 4332 | 4324 | 4312 | ~4000 |
@@ -95,7 +102,7 @@ number.
 
 Panel (b) is the relationship the whole argument depends on: biomass and
 production rate are tightly correlated across species, over six decades. Panel
-(c) shows the pattern the paper reports in its own Fig. 2c — the small-`w_max`
+(c) shows the pattern the paper reports in its own Fig. 2c — the small-$$w_{\max}$$
 species are the common ones, and the rare species sit at larger maximum body
 mass.
 
@@ -129,12 +136,12 @@ line; under BH<sub>P</sub> they stay close to it.
 ![Figure 4](figures/fig4.png)
 
 Dotted lines are isoclines of constant exploitation ratio `E`; the dashed line
-in the middle panel has slope 1 + α.
+in the middle panel has slope $$1+\alpha$$.
 
 Under fixed `F` and BH<sub>P/B</sub> the species lie along a line of slope 1 —
 every species is exploited at the same ratio, regardless of how rare it is. That
 is what puts the rare ones on a downward path. Under BH<sub>P</sub> the species
-lie along the steeper slope-(1+α) line: yield rises faster than linearly with
+lie along the steeper slope-$$(1+\alpha)$$ line: yield rises faster than linearly with
 production, so rare species are exploited at a progressively *smaller* fraction
 of their production. The open circle and arrow trace the rarest fished species
 from year 0 to year 50.
@@ -156,7 +163,7 @@ reports for its own assemblages.
 
 Three independently assembled ecosystems (rows) with extra life-history
 variation, baseline fishing doubled to 0.2 yr⁻¹, and a random per-species
-intensity factor `z' ~ U(0.5, 1.5)` applied identically to all three rules. The
+intensity factor $$z'_i \sim U(0.5, 1.5)$$ applied identically to all three rules. The
 BH<sub>P</sub> column is visibly flatter than either neighbour in all three
 assemblages, and the BH<sub>P/B</sub> collapses in assemblage 3 are dramatic.
 
@@ -214,7 +221,7 @@ deal. Full detail in [mapping.md](mapping.md) and [mu_b.md](mu_b.md).
 proportional to metabolic need *divided by* the rate food becomes available; the
 printed formula *multiplies* by it. The two differ by two orders of magnitude in
 adult mortality. The printed version gives near-zero adult mortality, biomass
-piling up at `w_max`, roughly ten times too much fish biomass, and large species
+piling up at $$w_{\max}$$, roughly ten times too much fish biomass, and large species
 so dominant that small ones cannot invade at all. The prose version reproduces
 the paper's own reported biomass range, its 0.25 g m⁻² yr⁻¹ yield, its 0.06 ‰
 Fogarty ratio, and its ordering in which small species are common and large ones
@@ -292,10 +299,3 @@ assemblages in general. And the comparison rests on a single calibration
 criterion; the trade-off frontier proposed in [robustness.md](robustness.md)
 would be a stronger design than the one used here and in the paper.
 
----
-
-A rendering check: $$F_i(t) = c\,z_i\,g_i(t)$$ inline, and displayed:
-
-$$
-P_i(t) = \int_{w_f}^{w_{\infty,i}} g_i(w,t)\,N_i(w,t)\,dw
-$$

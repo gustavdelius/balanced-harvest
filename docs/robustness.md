@@ -15,17 +15,17 @@ experiment would need.
 > (`F_i = c_P/B P_i/B_i`) puts several of them on an exponential path to
 > extinction.
 
-The paper's stated mechanism is a feedback: because `B_i ~ P_i^alpha` with
-`alpha` near 1, `F_i = c_P P_i` makes fishing mortality roughly proportional to
-biomass, so it falls away as a stock falls. Fixed `F` has no such feedback, and
+The paper's stated mechanism is a feedback: because $$B_i \sim P_i^{\alpha}$$ with
+$$\alpha$$ near 1, $$F_i = c_P P_i$$ makes fishing mortality roughly
+proportional to biomass, so it falls away as a stock falls. Fixed `F` has no such feedback, and
 `P_i/B_i` changes little as a stock falls, so `BH_P/B` has almost none either.
 
 ## 2. The causal chain, and where it can be attacked
 
 | # | Link | What it needs to be true | Attack |
 |---|---|---|---|
-| i | `B_i ~ P_i^alpha`, `alpha ~ 1` | enough adult mortality that biomass does not pile up at `w_max`; a sensible size range over which `P` is measured | Eq. (A.7); `w_f`; the P/B measurement range |
-| ii | `F_i ∝ P_i` therefore `F_i ∝ B_i` | mass-specific production roughly density-independent | food-limitation feedback; `theta` |
+| i | $$B_i \sim P_i^{\alpha}$$, $$\alpha \approx 1$$ | enough adult mortality that biomass does not pile up at `w_max`; a sensible size range over which `P` is measured | Eq. (A.7); `w_f`; the P/B measurement range |
+| ii | $$F_i \propto P_i$$ therefore $$F_i \propto B_i$$ | mass-specific production roughly density-independent | food-limitation feedback; `theta` |
 | iii | that feedback is what saves rare species | rare species decline *because of fishing* | baseline drift; predation release |
 | iv | the other two rules have no comparable feedback | no other density dependence in the model | absence of a stock-recruitment relationship |
 | v | "at matched total yield" | the matching criterion is not itself doing the work | terminal-yield calibration; fishing intensity |
@@ -101,8 +101,8 @@ by a lot for the rarest species.
 
 ### 3.4 Is it production, or just density dependence?
 
-`BH_P` gives `Y_i = c_P P_i B_i`, and since `P_i ~ B_i`, `Y_i ~ B_i^2`. A rule
-`F_i = c_B B_i` gives exactly the same thing without ever mentioning production.
+`BH_P` gives $$Y_i = c_P P_i B_i$$, and since $$P_i \sim B_i$$, $$Y_i \sim B_i^2$$. A rule
+$$F_i = c_B B_i$$ gives exactly the same thing without ever mentioning production.
 If the two behave identically, then the paper's result is about making fishing
 mortality density-dependent, and "production" is a convenient proxy for biomass
 rather than the active ingredient — which matters, because biomass is far easier
@@ -110,14 +110,18 @@ to estimate than production.
 
 More sharply, the three rules are nearly the same one-parameter family:
 
-```
-F_i = c X_i^theta      with  theta = 0 (fixed F),  theta ~ 1 (BH_P),  theta <~ 0 (BH_P/B)
-```
+$$
+F_i = c\,X_i^{\theta},
+\qquad
+\theta = 0 \;(\text{fixed } F), \quad
+\theta \approx 1 \;(\mathrm{BH}_P), \quad
+\theta \lesssim 0 \;(\mathrm{BH}_{P/B}).
+$$
 
-`BH_P/B` sits at `theta` slightly *negative*, because as a stock thins, competition
+$$\mathrm{BH}_{P/B}$$ sits at $$\theta$$ slightly *negative*, because as a stock thins, competition
 for food eases, `P_i/B_i` rises, and fishing mortality goes *up* — the paper says
 as much ("The ratio might even increase if low species biomass reduced
-competition for food"). Sweeping `theta` continuously turns a three-way
+competition for food"). Sweeping $$\theta$$ continuously turns a three-way
 categorical comparison into a quantitative question: how much density dependence
 does a harvest control rule need?
 
@@ -178,27 +182,29 @@ of capacity.
 The reason is structural, and follows from Eq. (A.11) in two lines. At steady
 state, dividing through by `a(x)` and writing `L = n/a` and `iota = I/a`:
 
-```
-iota + r L (1 - L) - d L = 0        =>    r L^2 - (r - d) L - iota = 0
-```
+$$
+\iota + r\,L\,(1 - L) - d\,L = 0
+\qquad\Longrightarrow\qquad
+r\,L^2 - (r - d)\,L - \iota = 0 .
+$$
 
-With `r = 10 w^-0.15`, that is 40-220/yr across the larval prey range, against
-a measured grazing mortality of 0.4-0.9/yr. Solving for `L` at `r = 79/yr`,
-`d = 0.7/yr`:
+With $$r = 10\,w^{-0.15}$$, that is 40–220 yr⁻¹ across the larval prey range,
+against a measured grazing mortality of 0.4–0.9 yr⁻¹. Solving for $$L$$ at
+$$r = 79\,\mathrm{yr}^{-1}$$, $$d = 0.7\,\mathrm{yr}^{-1}$$:
 
-| `iota` (per year) | 1 (published) | 0.1 | 0.01 | 0 |
+| $$\iota$$ (yr⁻¹) | 1 (published) | 0.1 | 0.01 | 0 |
 |---|---|---|---|---|
-| resource level `L` | 1.004 | 0.992 | 0.991 | 0.991 |
+| resource level $$L$$ | 1.004 | 0.992 | 0.991 | 0.991 |
 
 **The immigration term is not what protects the plankton.** Switching it off
-entirely moves the resource level from 1.004 to 0.991. What keeps `L` pinned at
-1 is that the plankton regenerate two orders of magnitude faster than they are
-grazed. (An earlier draft of this section named `I_0 = a_0` as the decisive
-choice; that was wrong. It becomes decisive only in combination with a slow
-plankton — at `r = 0.79/yr` the same table reads 1.183, 0.417, 0.183, 0.114.)
+entirely moves the resource level from 1.004 to 0.991. What keeps $$L$$ pinned at 1 is that the plankton regenerate two orders of
+magnitude faster than they are grazed. (An earlier draft of this section named
+$$I_0 = a_0$$ as the decisive choice; that was wrong. It becomes decisive only
+in combination with a slow plankton — at $$r = 0.79\,\mathrm{yr}^{-1}$$ the
+same table reads 1.183, 0.417, 0.183, 0.114.)
 
-So the parameter to reach for is `r_0`, and `iota` matters only once `r_0` is
-already low. Both are set without justification: `r_0 = 10` is anchored to a
+So the parameter to reach for is $$r_0$$, and $$\iota$$ matters only once
+$$r_0$$ is already low. Both are set without justification: `r_0 = 10` is anchored to a
 cell-division scaling exponent, not to a rate, and `I_0` is simply set equal to
 `a_0` with no comment beyond the statement that `I(x)` "was assumed to scale
 with body size in the same way as the carrying capacity".
@@ -389,7 +395,7 @@ control rather than to year 0:
    `F_i = c_P/B P_i(0)/B_i(0)` held constant. Separates allocation from feedback
    (§3.5).
 5. **`F_i = c_B B_i`.** Tests whether production is doing any work (§3.4).
-6. **The `theta` sweep.** `F_i = c B_i^theta` for `theta` in -0.5 to 1.5,
+6. **The `theta` sweep.** $$F_i = c\,B_i^{\theta}$$ for $$\theta$$ in $$[-0.5, 1.5]$$,
    calibrated to a common yield. Places all rules on one axis.
 7. **Predation-release decomposition.** For each rare species, track fishing
    mortality and predation mortality separately over the 50 years, and report how
@@ -431,7 +437,7 @@ per variant.
 15. **Update interval.** `F_i` recomputed every 1, 3, 5 years from the state at
     that moment rather than continuously. Continuous perfect feedback is a strong
     idealisation for a policy claim.
-16. **Observation error.** `F_i = c_P * P_i * exp(eta_i(t))` with log-normal
+16. **Observation error.** $$F_i = c_P\,P_i\,e^{\eta_i(t)}$$ with log-normal
     noise, and with a persistent per-species bias. The paper tests a *fixed*
     per-species intensity factor `z' ~ U(0.5, 1.5)`, which is bias without noise
     and without dynamics; this is the harder test of the robustness-to-uncertainty
