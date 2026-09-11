@@ -1,7 +1,7 @@
 # Robustness investigation: results
 
-What came out of the plan in [robustness.md](robustness.md). Phases 1 and 2 and
-Phase 3 items 8 and 8b are complete. Everything below is measured, not argued.
+What came out of the plan in [robustness.md](robustness.md). Phases 1, 2 and 5
+and Phase 3 items 8 and 8b are complete. Everything below is measured, not argued.
 
 Three headline results:
 
@@ -19,6 +19,11 @@ Three headline results:
    the community exactly fixed, shrinks BH<sub>P</sub>'s advantage from 3.4x to
    1.0x. The paper's result is contingent on its deliberate choice to have no
    compensatory recruitment.
+5. Replicated over thirteen ecosystems, the ranking
+   BH<sub>P</sub> > fixed > BH<sub>P/B</sub> holds 13 times out of 13, with the
+   advantage varying fourfold (median 2.4x). The adaptive feedback turns out to
+   be essential after all - a frozen allocation is erratic and often worse than
+   uniform fishing, correcting what point 2 above looked like on one ecosystem.
 
 Reproduce with `Rscript run_robustness.R` and `Rscript run_resource_sweep.R`.
 
@@ -341,15 +346,16 @@ partly because it "automatically integrates over all the paths by which biomass
 flows into components of an ecosystem", but biomass is very much easier to
 estimate, and in this model it does the same job.
 
-**Most of the benefit is the allocation, not the feedback.** Freezing
-BH<sub>P</sub>'s year-0 allocation and holding it constant for 50 years reaches
-0.411, against 0.566 for the adaptive rule and 0.166 for fixed *F* — about
-three-quarters of the benefit on a log scale. The paper's framing is that
-fishing "operating adaptively to follow species' production rates over time,
-contains a feedback that would help to protect species from overfishing in the
-presence of uncertainty". The adaptation does add something real, but simply
-*allocating* less fishing mortality to rarer species at the outset, and then
-never updating it, recovers most of the gain.
+**On this ecosystem, most of the benefit looks like the allocation rather than
+the feedback.** Freezing BH<sub>P</sub>'s year-0 allocation and holding it
+constant for 50 years reaches 0.411, against 0.566 for the adaptive rule and
+0.166 for fixed *F* — about three-quarters of the benefit on a log scale.
+
+**This does not survive replication.** Across thirteen ecosystems the fraction
+recovered ranges from −4.66 to 0.94 with a median of 0.38, and the frozen rule
+is often worse than fishing everything at the same rate. See Phase 5 below;
+eco1 turns out to be near the favourable end of the range, and the adaptive
+feedback matters much more than this single ecosystem suggests.
 
 **The benefit saturates, and only the sign of $$\theta$$ is critical.** Writing
 the family as $$F_i = c\,B_i^{\theta}$$, the paper's three rules are
@@ -523,6 +529,91 @@ transients. Maximum unfished drift over 50 years falls from 83% at $$L = 0$$ to
 21% at $$L = 0.9$$, which is further evidence that the quasi-equilibrium the
 paper starts from is as unsettled as it is partly *because* recruitment is
 uncompensated.
+
+## Phase 5 — replication across thirteen ecosystems
+
+Everything above rests on one to four assembled ecosystems. Twelve further
+ecosystems were assembled under exactly the eco1 protocol — no randomisation of
+the search rate, $$z'_i = 1$$, $$F_{\mathrm{ref}} = 0.1$$ — giving thirteen
+comparable replicates, and the frontier comparison was repeated on all of them
+for the paper's three rules plus the two Phase 2 controls that carried the load.
+
+All thirteen reached the full 15 species within the 40-attempt cap (18–30
+attempts, median 25, against the paper's 25), each spanning roughly two decades
+of maximum body mass, with 14 or 15 species above the 400 g entry size. No
+assemblage had to be screened out, so the distributions below are over every
+replicate rather than a chosen subset.
+
+Worst-affected species, as a fraction of its unfished trajectory, read at each
+ecosystem's own reference yield:
+
+| rule | median | range |
+|---|---|---|
+| fixed *F* | 0.234 | 0.124 – 0.460 |
+| **BH<sub>P</sub>** | **0.593** | 0.380 – 0.670 |
+| BH<sub>P/B</sub> | 0.081 | 0.036 – 0.359 |
+| $$F \propto B$$ | **0.660** | 0.522 – 0.717 |
+| frozen BH<sub>P</sub> allocation | 0.372 | 0.009 – 0.585 |
+
+### What replication confirms
+
+**The ranking is completely robust.** BH<sub>P</sub> beats fixed *F* in 13 of
+13, beats BH<sub>P/B</sub> in 13 of 13, and the full ordering
+BH<sub>P</sub> > fixed > BH<sub>P/B</sub> holds in 13 of 13. The paper's
+qualitative conclusion survives replication without exception.
+
+**The effect size varies fourfold.** BH<sub>P</sub>'s advantage over fixed *F*
+in the worst-affected species has a median of **2.42×**, ranging from 1.27× to
+5.24×. eco1, the ecosystem all the earlier phases were reported on, gives 3.41×
+— comfortably above the median. Single-ecosystem effect sizes should be read as
+illustrative, not as estimates.
+
+**Production really is doing no work.** $$F \propto B_i$$ beats
+$$F \propto P_i$$ in **13 of 13** ecosystems, by a median of 10% and never by
+less than 6%. Phase 2 called this a tie on one ecosystem; with thirteen it is a
+consistent, if small, win for the simpler and far more measurable quantity.
+
+### What replication overturns
+
+**The frozen-allocation result does not hold.** On eco1, freezing
+BH<sub>P</sub>'s year-0 allocation recovered 74% of the gap between fixed *F*
+and adaptive BH<sub>P</sub>, which Phase 2 read as "most of the benefit is the
+allocation, not the feedback". Across thirteen ecosystems the fraction recovered
+has a median of 0.38 and a range of **−4.66 to 0.94**. A negative value means
+the frozen allocation is *worse than fishing every species at the same rate*,
+and that happens in 4 of 12 readable cases; frozen beats fixed *F* in only 8 of
+12. In eco303 the frozen rule cannot reach the reference yield **at any
+intensity** — pushing harder collapses the stocks and total yield falls — so
+there is no intensity at which it is comparable at all.
+
+eco1's 0.74 sits near the top of that range. Generalising from it was wrong.
+
+The mechanism is clear enough in hindsight. A frozen allocation assigns high
+fishing mortality to whatever was abundant in year 0 and never revises it, so a
+species that starts abundant and then declines keeps being hit at its original
+rate — the same failure mode as fixed *F*, but concentrated on the species the
+rule singled out. The adaptive feedback is not a refinement on top of a good
+allocation; it is what stops the allocation going stale. **This vindicates the
+paper's emphasis on adaptation**, which Phase 2 had wrongly downplayed.
+
+### A methodological correction
+
+Terminal yield is not always monotone in fishing intensity. Rules without a
+stabilising feedback overfish into declining yield, so their frontiers double
+back: 6 of 65 frontiers here peak at an intermediate intensity, and they are all
+BH<sub>P/B</sub> (3) or frozen (3). BH<sub>P</sub>, $$F \propto B$$ and fixed
+*F* are monotone in all thirteen — itself a result worth stating, since it means
+the density-dependent rules do not have an interior yield maximum to overshoot
+over this range.
+
+Interpolating a metric against yield across such a turnover mixes the two
+branches. `lp_at_yield()` now restricts to the ascending branch up to the yield
+maximum, and returns `NA` — meaning "unreachable at any intensity" — rather than
+extrapolating. This changed BH<sub>P/B</sub>'s reported range in this section
+from a spurious $$7\times10^{-8}$$ low end to 0.036, and moved the
+frozen-versus-fixed count from 6/12 to 8/12. Re-deriving Phases 1 and 2 with the
+corrected reader leaves every number in them unchanged, because their reference
+yields sit on the ascending branch in all cases.
 
 ## Still to do
 

@@ -247,12 +247,16 @@ is doing the work — and sets out an investigation.
 In short: the calibration criterion turns out not to matter (the frontiers never
 cross, and I was wrong to call it the most load-bearing choice); $$F$$
 proportional to *biomass* does everything $$F$$ proportional to production does;
-about three-quarters of the benefit is the initial allocation across species
-rather than the adaptive feedback; the plankton cannot be made contestable
+the adaptive feedback turns out to be essential, though it took thirteen
+ecosystems to establish that — on one it looked as though the initial allocation
+did most of the work; the plankton cannot be made contestable
 without destroying the large-bodied community the paper harvests; and, most
 consequentially, imposing a stock-recruitment relationship on the published
 ecosystem while holding the community exactly fixed shrinks
-BH<sub>P</sub>'s advantage over fixed $$F$$ from 3.4× to 1.0×.
+BH<sub>P</sub>'s advantage over fixed $$F$$ from 3.4× to 1.0×. Replicated over
+thirteen independently assembled ecosystems, the ranking
+BH<sub>P</sub> > fixed > BH<sub>P/B</sub> holds 13 times out of 13, with the
+advantage varying fourfold (median 2.4×).
 
 One finding from that work is already in hand. Appendix B nominates competition
 among larvae for plankton as the mechanism that replaces an imposed

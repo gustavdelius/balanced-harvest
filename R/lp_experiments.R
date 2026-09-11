@@ -123,11 +123,23 @@ lp_control <- function(params, zf = NULL, dt = 0.01, t_save = 5,
 # Log-log interpolation of a metric along a rule's frontier, so that rules can
 # be compared at a yield none of them was run at exactly.
 lp_at_yield <- function(front, metric, y) {
-    f <- front[order(front$yield), ]
+    f <- front[order(front$mult), ]
     ok <- f$yield > 0 & is.finite(f[[metric]])
     f <- f[ok, ]
-    if (nrow(f) < 2 || y < min(f$yield) || y > max(f$yield)) return(NA_real_)
+    if (nrow(f) < 2) return(NA_real_)
+    # Yield is not always monotone in intensity: rules without a stabilising
+    # feedback overfish into declining yield, so the frontier can double back.
+    # Interpolating across the turnover would mix the two branches, so keep
+    # only the ascending branch up to the yield maximum.
+    f <- f[seq_len(which.max(f$yield)), , drop = FALSE]
+    if (nrow(f) < 2) return(NA_real_)
+    # NA rather than an extrapolation when the rule cannot reach this yield at
+    # any intensity - that is a result, not missing data.
+    if (y < min(f$yield) || y > max(f$yield)) return(NA_real_)
     v <- f[[metric]]
     if (all(v > 0)) exp(approx(log(f$yield), log(v), log(y))$y)
     else approx(log(f$yield), v, log(y))$y
 }
+
+# The largest terminal yield a rule reaches anywhere on its frontier.
+lp_max_yield <- function(front) max(front$yield, na.rm = TRUE)
