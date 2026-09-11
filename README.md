@@ -8,6 +8,9 @@ A reimplementation of
 
 using [mizer](https://sizespectrum.org/mizer/).
 
+**Results, figures and comparison with the paper:
+<https://gustavdelius.github.io/balanced-harvest/>**
+
 The paper asks whether a moderate amount of fishing, scaled across species in
 proportion to each species' production rate, can maintain biodiversity rather
 than erode it. It compares three ways of setting the fishing mortality rate of
