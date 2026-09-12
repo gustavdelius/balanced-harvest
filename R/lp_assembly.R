@@ -20,9 +20,11 @@ lp_state <- function(params, n, n_pp) list(params = params, n = n, n_pp = n_pp)
 # Rebuild the params object for a given set of life histories.  The size grid
 # is fixed (min_w = egg mass, max_w = 40 kg) and so does not move as species
 # come and go, which lets abundance arrays be carried across rebuilds.
-lp_rebuild <- function(w_max, mu_egg, z, plankton = LP_PLANKTON) {
+lp_rebuild <- function(w_max, mu_egg, z, w_egg = LP_FISH$w_egg,
+                       plankton = LP_PLANKTON, fish = LP_FISH) {
     lp_params(w_max = w_max, mu_egg = mu_egg, z = z,
-              species = seq_along(w_max), plankton = plankton)
+              species = seq_along(w_max), plankton = plankton, w_egg = w_egg,
+              fish = fish)
 }
 
 # Draw one invader (Appendix B step 1).
@@ -32,13 +34,24 @@ lp_draw_invader <- function(assembly = LP_ASSEMBLY, randomise_A = FALSE) {
          mu_egg = runif(1, assembly$mu_egg_range[1], assembly$mu_egg_range[2]),
          # Figs 5, 6: search rate and intrinsic mortality share a factor
          # z_i ~ N(1, 0.1), so faster feeders also die faster.
-         z      = if (randomise_A) rnorm(1, 1, 0.1) else 1)
+         # Activity: a wide log-uniform fast-slow axis when activity_range is
+         # given, otherwise the paper's near-fixed z.
+         z      = if (!is.null(assembly$activity_range))
+                      exp(runif(1, log(assembly$activity_range[1]),
+                                log(assembly$activity_range[2])))
+                  else if (randomise_A) rnorm(1, 1, 0.1) else 1,
+         # Egg mass as an independent life-history axis.  NULL is the paper's
+         # common w_0; a range makes it log-uniform over that range.
+         w_egg  = if (is.null(assembly$w_egg_range)) LP_FISH$w_egg
+                  else exp(runif(1, log(assembly$w_egg_range[1]),
+                                 log(assembly$w_egg_range[2]))))
 }
 
 lp_assemble <- function(assembly = LP_ASSEMBLY, randomise_A = FALSE,
                         dt = 0.01, verbose = TRUE,
-                        plankton = LP_PLANKTON) {
+                        plankton = LP_PLANKTON, fish = LP_FISH) {
     w_max <- numeric(0); mu_egg <- numeric(0); z <- numeric(0)
+    w_egg <- numeric(0)
     n <- NULL; n_pp <- NULL
     attempts <- 0
 
@@ -50,7 +63,9 @@ lp_assemble <- function(assembly = LP_ASSEMBLY, randomise_A = FALSE,
         w_max_new  <- c(w_max, inv$w_max)
         mu_egg_new <- c(mu_egg, inv$mu_egg)
         z_new      <- c(z, inv$z)
-        p <- lp_rebuild(w_max_new, mu_egg_new, z_new, plankton)
+        w_egg_new  <- c(w_egg, inv$w_egg)
+        p <- lp_rebuild(w_max_new, mu_egg_new, z_new, w_egg_new, plankton,
+                        fish)
 
         # Carry the resident spectra over; start the invader low on a power law.
         n_new <- initialN(p)
@@ -72,10 +87,12 @@ lp_assemble <- function(assembly = LP_ASSEMBLY, randomise_A = FALSE,
         if (!any(keep)) {
             n <- NULL; n_pp <- n_pp_end
             w_max <- numeric(0); mu_egg <- numeric(0); z <- numeric(0)
+            w_egg <- numeric(0)
         } else {
             w_max  <- w_max_new[keep]
             mu_egg <- mu_egg_new[keep]
             z      <- z_new[keep]
+            w_egg  <- w_egg_new[keep]
             n      <- n_end[keep, , drop = FALSE]
             n_pp   <- n_pp_end
         }
@@ -89,7 +106,7 @@ lp_assemble <- function(assembly = LP_ASSEMBLY, randomise_A = FALSE,
 
     # Order species by maximum body mass, as the paper numbers them (Fig. 2c).
     o <- order(w_max)
-    p <- lp_rebuild(w_max[o], mu_egg[o], z[o], plankton)
+    p <- lp_rebuild(w_max[o], mu_egg[o], z[o], w_egg[o], plankton, fish)
     initialN(p) <- unname(n[o, , drop = FALSE])
     initialNResource(p) <- n_pp
     list(params = p, attempts = attempts)

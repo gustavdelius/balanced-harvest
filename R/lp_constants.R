@@ -40,13 +40,34 @@ LP_FISH <- list(
     mu_b_form = "ratio",# reading of Eq. (A.7); see docs/mu_b.md
     w_mat_rat = 0.1,    # w_mat = w_max / 10                       (Appendix C)
     theta_ii  = 0.5,    # cannibalism weight                       (Appendix C)
-    theta_ij  = 0.2     # between-species predation weight         (Appendix C)
+    theta_ij  = 0.2,    # between-species predation weight         (Appendix C)
+    # Vulnerability to predation scales as z^vuln_exp, i.e. each species'
+    # column of theta is multiplied by z_i^vuln_exp.  The paper has no such
+    # term (vuln_exp = 0), which leaves the activity factor z_i scaling growth
+    # and intrinsic mortality but NOT the predation others impose, so faster
+    # species are strictly fitter: d log R0 / d log z = +3.2 measured on eco1.
+    # At vuln_exp = 1 every rate a species experiences scales with z, its life
+    # is a pure time-rescaling, R0 is exactly invariant, and z becomes a
+    # neutral fast-slow axis that assembly cannot climb.  See docs/index.md.
+    vuln_exp  = 0
 )
 
 ## Appendix B: assembly and randomisation ------------------------------------
 LP_ASSEMBLY <- list(
     w_max_range   = c(100, 40000),  # g,  log-uniform maximum body mass
     mu_egg_range  = c(28, 32),      # /yr, uniform larval death rate at egg size
+    # Egg mass.  The paper gives every species the same w_0 = 1e-3 g (Table 2),
+    # which is one of the reasons P/B comes out nearly species-independent -
+    # see docs/index.md.  Setting this to a range makes egg mass an independent
+    # life-history axis: NULL reproduces the paper.  The range runs upwards
+    # from the paper's value to w_L = 0.1 g, the size at which larval mortality
+    # dies away (Eq. A.6), so it spans the whole of the larval gauntlet without
+    # moving the size grid: mizer takes the grid floor from min(w_min).
+    w_egg_range   = NULL,           # g,  log-uniform egg mass, or NULL
+    # Activity factor z_i: log-uniform over this range, or NULL for the
+    # paper's treatment (z = 1, or z ~ N(1, 0.1) when randomise_A is set).
+    # Only a neutral axis (vuln_exp = 1) survives assembly over a wide range.
+    activity_range = NULL,
     n_egg_init    = 0.002,          # /m^2, log-density of eggs of an invader
     invader_slope = 2,              # invader starts on u(x) ~ w^-(lambda-1)
     relax_years   = 50,             # yr of relaxation after each invasion
