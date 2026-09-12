@@ -7,6 +7,11 @@ section 3.6). It is written against
 the reimplementation in this repository, and names the code hooks each
 experiment would need.
 
+It assumes the model set out equation by equation in
+[the overview](index.md), and the ecosystem names used there: `eco1` is the
+15-species assemblage behind the paper's Figs 2-4, and `eco_r1`-`eco_r3` are
+three more with the search rate randomised across species.
+
 ## 1. The claim, stated precisely
 
 > At matched total yield, setting fishing mortality in proportion to somatic

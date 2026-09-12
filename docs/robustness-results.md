@@ -68,7 +68,16 @@ density $$N_i(w,t)$$ per unit mass per m². The model grid is
 $$w_1 < \dots < w_J$$ with $$w_1 = 1$$ mg and bin widths $$\Delta w_j$$, and
 $$g_{ij}(t)$$ is mizer's `e_growth`, the somatic growth rate $$dw/dt$$ in
 g yr⁻¹ — equal to $$\epsilon_i(w)\,\tilde g_i(w,t)$$ in the paper's Appendix A
-notation. Every experiment uses $$T = 50$$ years of fishing.
+notation. Every experiment uses $$T = 50$$ years of fishing. The model itself,
+equation by equation, is in [the overview](index.md).
+
+The ecosystems are named after the seed they were assembled from, by the
+Appendix B procedure described in [the overview](index.md): `eco1` is the
+15-species assemblage behind the paper's Figs 2-4; `eco_r1`-`eco_r3` are three
+more with the search rate randomised across species; and `eco301`-`eco312` are
+twelve further ones assembled under exactly the `eco1` protocol, used for the
+replication in Phase 5. None of them is the paper's own assemblage, which is
+not recoverable from what the paper reports.
 
 ### The harvest rules
 

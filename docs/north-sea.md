@@ -13,7 +13,24 @@ the assembly procedure produced them*, with life histories drawn at random. A
 real one contains particular rare species, with particular life histories, at
 particular abundances that somebody has measured.
 
-This page runs the same three rules on mizer's North Sea model, `NS_params`,
+The three rules, in the paper's Eqs (2.7)-(2.9), set the fishing mortality of
+species *i* to
+
+$$
+F_i(t) = F,
+\qquad
+F_i(t) = c_P\, P_i(t),
+\qquad
+F_i(t) = c_{P/B}\, P_i(t)/B_i(t),
+$$
+
+where $$B_i$$ and $$P_i$$ are the biomass and the somatic production rate over
+the harvested range — everything above a shared knife-edge entry mass
+$$w_f = 400$$ g. All three are size-independent above $$w_f$$: the balancing is
+across species, not across sizes. [The overview](index.md) writes the rest of
+the model out in full.
+
+This page runs those three rules on mizer's North Sea model, `NS_params`,
 first as it ships and then with real depleted North Sea species added at
 survey-derived abundances. The short answer is that **the paper's conclusion
 holds, but only once the ecosystem actually contains something at risk** — and
