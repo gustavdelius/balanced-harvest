@@ -23,8 +23,15 @@ Three results:
    a ten-fold range in age at maturity, $$P/B$$ spread 3.5x wider in logs than
    the paper's. And $$B \sim P$$ *still* holds, with $$\alpha$$ at 0.973-1.003.
 
-Reproduce with `Rscript run_egg_assembly.R <seed> <varied|fixed>` and
-`Rscript run_activity_assembly.R <seed> <neutral|gradient>`.
+4. Run the three harvesting rules on the result and BH<sub>P/B</sub> is no
+   longer a near-duplicate of a fixed $$F$$ — it spans an order of magnitude
+   and tracks turnover at $$r = 0.94$$ — but it still fails to protect rare
+   species, because turnover is orthogonal to rarity. That is a stronger
+   vindication of the paper's conclusion than its own ecosystems provide.
+
+Reproduce with `Rscript run_egg_assembly.R <seed> <varied|fixed>`,
+`Rscript run_activity_assembly.R <seed> <neutral|gradient>` and
+`Rscript run_activity_harvest.R <seed>`.
 
 ---
 
@@ -299,23 +306,92 @@ the mechanism above suggests, and this strengthens the paper's premise.
 
 ---
 
-## What this changes for the paper's comparison
+## 4. The three rules on a fast-slow ecosystem
 
 Figure 3's middle row shows BH<sub>P/B</sub> nearly flat across species, and
 that is the paper's argument for why a constant exploitation ratio is barely
-distinguishable from a constant $$F$$. The argument rests on $$P/B$$ being
+distinguishable from a constant $$F$$. That argument rests on $$P/B$$ being
 near-constant, which is a property of the paper's parameterisation rather than
-of size-spectrum ecosystems in general. In the neutral ecosystems above,
-BH<sub>P/B</sub> would fish the fastest species about six times harder than the
-slowest — which is orthodox single-stock advice, since high-turnover stocks
-sustain higher $$F$$.
+of size-spectrum ecosystems in general — so it should not survive here.
 
-BH<sub>P</sub> and BH<sub>B</sub> should also separate. The finding in
+All three rules were calibrated to the same total yield at year 50 against
+$$F = 0.1$$, exactly as the paper does it, on each of the three neutral
+ecosystems (`Rscript run_activity_harvest.R <seed>`).
+
+### BH_P/B stops being a near-duplicate of a fixed F
+
+| | spread of $$F_i$$ across species | $$\mathrm{cor}(\log F_i, \log z_i)$$ |
+|---|---|---|
+| fixed | 1.0x by construction | — |
+| BH<sub>P</sub> | 4.0e3 - 2.0e6 x | −0.18, −0.02, +0.13 |
+| BH<sub>P/B</sub> | **5.7x, 5.8x, 9.1x** | **+0.96, +0.93, +0.94** |
+
+BH<sub>P/B</sub> is now a genuinely distinct rule that fishes fast species six
+to nine times harder than slow ones, at a correlation with activity of 0.94.
+That is textbook single-stock advice: high-turnover stocks sustain higher
+$$F$$. BH<sub>P</sub>, by contrast, is essentially uncorrelated with turnover —
+it tracks abundance, at $$\mathrm{cor}(\log F_i, \log B_i) = 0.94$$ to
+$$0.98$$.
+
+### And it still fails, for a reason that makes the paper's case stronger
+
+Speed and rarity are nearly orthogonal in these ecosystems:
+$$\mathrm{cor}(\log z, \log B) = -0.32, -0.06, -0.12$$. So a rule that
+allocates effort along the turnover axis is allocating along an axis that
+carries almost no information about which species are at risk.
+
+The worst-affected species under each rule says it plainly (rank 1 = rarest):
+
+| | seed 301 | seed 302 | seed 303 |
+|---|---|---|---|
+| fixed | B rank 1 | 12 | 2 |
+| BH<sub>P</sub> | **15** | **15** | **13** |
+| BH<sub>P/B</sub> | 4 | 1 | 4 |
+
+This is a **stronger** test of the paper's conclusion than the paper's own.
+There, BH<sub>P/B</sub> could be dismissed as barely differing from a constant
+$$F$$, so its poor showing proved little about the rule itself. Here it is
+non-degenerate, spans an order of magnitude, and implements orthodox fisheries
+advice — and it still leaves the rare species exposed, because turnover is not
+what rarity is made of. Only tracking abundance protects biodiversity.
+
+### The headline metric is misleading, and this is where it shows
+
+Under BH<sub>P</sub> the worst-affected species is the *most abundant* one, by
+design: effort is deliberately concentrated there. So "worst species relative
+to control", the metric used in [index.md](index.md) and by the paper, measures
+harm to a common species under one rule and harm to a rare one under another,
+and the comparison between them means less than it appears to.
+
+On that metric BH<sub>P</sub>'s advantage over fixed $$F$$ looks like
+0.95x, 1.40x, 1.60x. Conditioned on rarity it looks quite different:
+
+| advantage of BH<sub>P</sub> over fixed $$F$$ | seed 301 | seed 302 | seed 303 |
+|---|---|---|---|
+| worst species overall (the headline metric) | 0.95x | 1.40x | 1.60x |
+| worst of the rarest third | **5.4x** | **10.8x** | **16.9x** |
+| geometric mean over all 15 species | 1.38x | 1.83x | 1.64x |
+
+Under BH<sub>P</sub> the rarest species ends up *above* its unfished
+trajectory — 5.8 to 6.5x — because the rule barely fishes it while fishing its
+competitors and predators hard.
+
+Two caveats on that last number. In seeds 301 and 302 the single rarest species
+sits at $$2.9\times10^{-5}$$ and $$5.6\times10^{-7}$$ g m⁻², at or below the
+$$2\times10^{-6}$$ extinction threshold used during assembly, so the 18-23x
+ratios there are measured on species that are already effectively gone. (The
+threshold is applied during assembly only, and the final relaxation lets species
+drift below it; `eco1` has the same property.) Only seed 303's rarest species,
+at $$2.7\times10^{-4}$$ g m⁻², is comfortably above it — and there the
+advantage is 17.7x on a species that genuinely persists. The rarest-third
+column is the more robust statement.
+
+### What has not been tested
+
+BH<sub>P</sub> versus BH<sub>B</sub>. The finding in
 [robustness-results.md](robustness-results.md) that $$F \propto B$$ does
-everything $$F \propto P$$ does is a corollary of $$P/B$$ being flat.
-
-Neither has been tested yet. Running the three rules on the neutral ecosystems
-is the obvious next step.
+everything $$F \propto P$$ does is a corollary of $$P/B$$ being flat, so the
+two rules should separate here. They have not been run.
 
 ## Numerics
 

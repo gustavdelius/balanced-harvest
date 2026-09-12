@@ -117,6 +117,13 @@ more vulnerable to predation, which turns activity into a neutral axis that
 assembly cannot climb; a genuine fast-slow continuum then assembles, with a
 ten-fold range in age at maturity. $$B \sim P$$ survives even that.
 
+Running the three rules on those ecosystems is also the sharpest test of the
+paper's conclusion so far. BH<sub>P/B</sub> is no longer a near-duplicate of a
+fixed $$F$$ there — it spans an order of magnitude and tracks turnover at
+$$r = 0.94$$, which is orthodox single-stock advice — and it *still* leaves the
+rare species exposed, because turnover is orthogonal to rarity. Only tracking
+abundance protects biodiversity.
+
 (The paper's Fig. 2a is a scatter from an Ecopath model of the West Scotland
 shelf. That is empirical data, not model output, and is not reproduced here.)
 
@@ -190,6 +197,14 @@ On `eco1`, with all three regimes calibrated to the same total yield:
 | fixed *F* | 0.198 | 0.046 | 0.166 | 0 |
 | **BH<sub>P</sub>** | **0.198** | **0.345** | **0.573** | **0** |
 | BH<sub>P/B</sub> | 0.197 | 0.025 | 0.070 | 3 |
+
+A caveat on the "worst species" column, found while running these rules on the
+fast-slow ecosystems of [life-history.md](life-history.md): under
+BH<sub>P</sub> the worst-affected species is usually the *most abundant* one,
+because that is where the rule deliberately concentrates effort. The column
+therefore measures harm to a common species under one rule and harm to a rare
+one under another. Conditioning on rarity instead changes BH<sub>P</sub>'s
+measured advantage there from 0.95-1.6x to 5.4-16.9x.
 
 Across all four ecosystems, counting species that end below 10% and below 1% of
 what they would have been with no fishing at all:
@@ -293,6 +308,7 @@ and slower, one assembly per invocation:
 ```bash
 Rscript run_egg_assembly.R 301 varied        # -> data/egg/
 Rscript run_activity_assembly.R 301 neutral  # -> data/activity/
+Rscript run_activity_harvest.R 301           # -> data/activity_harvest/
 ```
 
 Requires [mizer](https://sizespectrum.org/mizer/) (developed against 3.3.0.9000),
