@@ -106,6 +106,17 @@ production rate are tightly correlated across species, over six decades. Panel
 species are the common ones, and the rare species sit at larger maximum body
 mass.
 
+Why panel (b) comes out this way, and what it takes to break it, is worked out
+in [life-history.md](life-history.md): $$P/B$$ is the biomass-weighted mean
+mortality rate, and mortality here is a function of body size that no species
+can escape, so abundance cancels exactly. Two attempts to spread $$P/B$$ across
+species are reported there. Giving every species its own egg mass fails —
+assembly drives all survivors to the largest egg on offer. Giving them their
+own activity succeeds, but only once faster species are made correspondingly
+more vulnerable to predation, which turns activity into a neutral axis that
+assembly cannot climb; a genuine fast-slow continuum then assembles, with a
+ten-fold range in age at maturity. $$B \sim P$$ survives even that.
+
 (The paper's Fig. 2a is a scatter from an Ecopath model of the West Scotland
 shelf. That is empirical data, not model output, and is not reproduced here.)
 
@@ -283,8 +294,22 @@ Rscript run_figures.R             # ~40 m -> data/results.rds, figures/
 Rscript tests/test_convergence.R  # the numerical liberties taken
 ```
 
+The life-history experiments of [life-history.md](life-history.md) are separate
+and slower, one assembly per invocation:
+
+```bash
+Rscript run_egg_assembly.R 301 varied        # -> data/egg/
+Rscript run_activity_assembly.R 301 neutral  # -> data/activity/
+```
+
 Requires [mizer](https://sizespectrum.org/mizer/) (developed against 3.3.0.9000),
 ggplot2 and patchwork.
+
+## Where does B ~ P come from?
+
+[life-history.md](life-history.md) works out why production is proportional to
+biomass in these ecosystems, and tries twice to break the relationship by
+giving species life histories that vary independently of maximum body mass.
 
 ## A second test, on a real ecosystem
 

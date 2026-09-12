@@ -15,17 +15,24 @@
 library(mizer)
 source("R/lp_constants.R")
 
+`%||%` <- function(a, b) if (is.null(a)) b else a
+
 ## --- Species parameters ----------------------------------------------------
 # A life-history template (Fig. 1) in which species differ only in maximum
 # body mass, larval death rate, and the optional activity factor z_i.
 lp_species_params <- function(w_max, mu_egg, z = 1,
-                              species = NULL, fish = LP_FISH) {
+                              species = NULL, fish = LP_FISH,
+                              w_egg = fish$w_egg) {
     n <- length(w_max)
     if (is.null(species)) species <- as.character(seq_len(n))
     data.frame(
         species = species,
         w_max   = w_max,
-        w_min   = fish$w_egg,
+        # Egg mass.  The paper gives every species w_0 = 1e-3 g; passing a
+        # vector here makes it an independent life-history axis.  It is only
+        # the size at which a species' spectrum starts - the reference mass in
+        # Eqs (A.6) and (A.7) stays at the paper's w_0 either way.
+        w_min   = w_egg,
         # w_mat = w_max/10, and w_mat25 chosen so that mizer's maturity
         # exponent U = log(3)/log(w_mat/w_mat25) equals rho_m      Eq. (A.8a)
         w_mat   = w_max * fish$w_mat_rat,
@@ -55,10 +62,16 @@ lp_species_params <- function(w_max, mu_egg, z = 1,
 }
 
 # theta: cannibalism stronger than between-species predation    (Appendix C)
-lp_interaction <- function(n, fish = LP_FISH) {
+#
+# `vuln` scales each species' COLUMN, i.e. how readily every predator takes
+# that species as prey.  The paper has vuln = 1 throughout.  Setting it to
+# z_i^vuln_exp buys the activity factor a cost: a species that forages harder
+# is also more exposed, which is what makes a fast-slow axis neutral rather
+# than a ladder every species climbs.
+lp_interaction <- function(n, fish = LP_FISH, vuln = rep(1, n)) {
     m <- matrix(fish$theta_ij, nrow = n, ncol = n)
     diag(m) <- fish$theta_ii
-    m
+    sweep(m, 2, rep_len(vuln, n), "*")
 }
 
 ## --- Intrinsic mortality ---------------------------------------------------
@@ -91,7 +104,12 @@ lp_background_mort <- function(params, encounter) {
     pre <- other_params(params)$lp_mu_b_pre
     w   <- params@w
     # g_i(w, t) / g_i(w_0, t) with g mass-specific; the factor K cancels
-    g_rel <- sweep(sweep(encounter, 2, w, "/"), 1, encounter[, 1] / w[1], "/")
+    # Params objects saved before egg mass became a species parameter carry no
+    # lp_w0_idx; for them the grid starts at w_0, so the reference is point 1.
+    i0    <- other_params(params)$lp_w0_idx
+    if (is.null(i0)) i0 <- lp_w0_idx(params)
+    g_rel <- sweep(sweep(encounter, 2, w, "/"), 1,
+                   encounter[, i0] / w[i0], "/")
     if (identical(other_params(params)$lp_mu_b_form, "ratio")) {
         # mu_b proportional to metabolic need DIVIDED BY food availability
         g_rel <- 1 / g_rel
@@ -100,10 +118,22 @@ lp_background_mort <- function(params, encounter) {
     pre * g_rel
 }
 
+# The (w/w_0)^(-xi) of Eq. (A.7) is measured from the paper's reference mass
+# w_0 = 1e-3 g, which is grid point 1 only when the grid starts there.  Once
+# the grid is extended below w_0 to make room for smaller eggs, the reference
+# has to be pinned explicitly or background mortality is silently rescaled by
+# (w_0/w_grid_min)^xi across the whole model.
 lp_mu_b_prefactor <- function(params, fish = LP_FISH) {
     sp <- species_params(params)
-    outer(sp$z * fish$mu_b0, params@w / params@w[1], function(a, r) a * r^(-fish$xi))
+    w0 <- params@w[lp_w0_idx(params, fish)]
+    outer(sp$z * fish$mu_b0, params@w / w0, function(a, r) a * r^(-fish$xi))
 }
+
+# Grid index of the reference mass w_0 of Eqs (A.6), (A.7).
+lp_w0_idx <- function(params, fish = LP_FISH) {
+    which.min(abs(log(params@w / fish$w_egg)))
+}
+
 
 # Total mortality: predation + fishing + the larval term (which lives in
 # mizer's ext_mort slot, `params@mu_b` - not to be confused with the paper's
@@ -196,8 +226,14 @@ lp_params <- function(w_max, mu_egg, z = rep(1, length(w_max)),
                       fish = LP_FISH, plankton = LP_PLANKTON,
                       numerics = LP_NUMERICS,
                       grid_w_max = LP_ASSEMBLY$w_max_range[2],
-                      mu_b_form = LP_FISH$mu_b_form) {
-    stopifnot(all(w_max <= grid_w_max))
+                      mu_b_form = LP_FISH$mu_b_form,
+                      w_egg = fish$w_egg) {
+    stopifnot(all(w_max <= grid_w_max), all(w_egg >= fish$w_egg))
+    # The grid is built with every species at the paper's w_0, because mizer
+    # takes the grid floor from min(species_params$w_min): letting the drawn
+    # egg masses into the constructor would move the floor up to the smallest
+    # of them, and move it again whenever a species was added or removed.
+    # Per-species egg masses are assigned just below, onto the fixed grid.
     sp <- lp_species_params(w_max, mu_egg, z, species, fish)
 
     # Grid: a fixed log step dx over the whole possible range, so that the
@@ -206,7 +242,8 @@ lp_params <- function(w_max, mu_egg, z = rep(1, length(w_max)),
 
     params <- newMultispeciesParams(
         sp,
-        interaction = lp_interaction(nrow(sp), fish),
+        interaction = lp_interaction(nrow(sp), fish,
+                                     vuln = sp$z^(fish$vuln_exp %||% 0)),
         no_w      = no_w,
         min_w     = fish$w_egg,
         max_w     = grid_w_max,
@@ -218,6 +255,22 @@ lp_params <- function(w_max, mu_egg, z = rep(1, length(w_max)),
         RDD       = "noRDD",
         info_level = 0
     )
+
+    # Per-species egg mass, snapped to the grid the constructor just built.
+    # mizer rounds w_min down to a grid point when it computes w_min_idx, so
+    # anything off-grid would be recorded at a value the model does not use.
+    if (!isTRUE(all.equal(rep(fish$w_egg, nrow(sp)), rep_len(w_egg, nrow(sp))))) {
+        wv <- w(params)
+        sp_new <- species_params(params)
+        sp_new$w_min <- wv[vapply(rep_len(w_egg, nrow(sp)),
+                                  function(x) which.min(abs(log(wv / x))), 1L)]
+        species_params(params) <- sp_new
+        # Nothing lives below its own egg size.
+        n0 <- initialN(params)
+        for (i in seq_len(nrow(n0)))
+            if (params@w_min_idx[i] > 1) n0[i, seq_len(params@w_min_idx[i] - 1)] <- 0
+        initialN(params) <- n0
+    }
 
     # Predation-driven diffusion, term (f) of Eq. (A.1)
     use_predation_diffusion(params) <- TRUE
@@ -240,6 +293,7 @@ lp_params <- function(w_max, mu_egg, z = rep(1, length(w_max)),
 
     # Larval mortality (Eq. A.6); the background part is added by lpMort.
     ext_mort(params) <- lp_larval_mort(params, fish)
+    other_params(params)$lp_w0_idx    <- lp_w0_idx(params, fish)
     other_params(params)$lp_mu_b_pre  <- lp_mu_b_prefactor(params, fish)
     other_params(params)$lp_mu_b_form <- mu_b_form
 
@@ -254,9 +308,13 @@ lp_params <- function(w_max, mu_egg, z = rep(1, length(w_max)),
 # density being 0.002 m^-2" (Appendix B).  The quoted density is the
 # log-density u(x_0), so phi(w_egg) = 0.002 / w_egg.
 lp_invader_n <- function(params, idx, assembly = LP_ASSEMBLY) {
-    w <- w(params)
-    n0 <- assembly$n_egg_init / w[1]
-    n <- n0 * (w / w[1])^(-assembly$invader_slope)
-    n[w > species_params(params)$w_max[idx]] <- 0
+    w  <- w(params)
+    sp <- species_params(params)
+    # Anchor at the species' own egg size, which is grid point 1 only in the
+    # paper's case of a common w_0.
+    j0 <- which(w >= sp$w_min[idx] * (1 - 1e-8))[1]
+    n0 <- assembly$n_egg_init / w[j0]
+    n  <- n0 * (w / w[j0])^(-assembly$invader_slope)
+    n[w < w[j0] | w > sp$w_max[idx]] <- 0
     n
 }
