@@ -1,0 +1,297 @@
+/* Layout overrides on top of jekyll-theme-cayman: a compact header bar and a
+   sidebar holding both the site navigation and a table of contents for the
+   current page.  The theme's typography inside .main-content is left alone. */
+
+:root {
+  --bh-green: #159957;
+  --bh-blue: #155799;
+  --bh-text: #44525c;
+  --bh-muted: #7e8f99;
+  --bh-rule: #e2e8ec;
+  --bh-sidebar-bg: #f7f9fa;
+  --bh-header-h: 3.25rem;
+  --bh-sidebar-w: 17.5rem;
+}
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* ---------------------------------------------------------------- header */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  height: var(--bh-header-h);
+  padding: 0 1rem;
+  color: #fff;
+  background-color: var(--bh-green);
+  background-image: linear-gradient(120deg, var(--bh-blue), var(--bh-green));
+}
+
+.site-brand {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 0.6rem;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.site-brand:hover { text-decoration: none; }
+.site-brand:hover .site-brand-sub { opacity: 0.9; }
+
+.site-brand-sub {
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.72;
+}
+
+.site-header-link {
+  margin-left: auto;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.3rem;
+  white-space: nowrap;
+}
+
+.site-header-link:hover {
+  color: #fff;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.nav-toggle {
+  display: none;
+  align-items: center;
+  gap: 0.45rem;
+  margin-right: 0.9rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 0.3rem;
+}
+
+.nav-toggle-icon,
+.nav-toggle-icon::before,
+.nav-toggle-icon::after {
+  display: block;
+  width: 1rem;
+  height: 2px;
+  background: currentColor;
+}
+
+.nav-toggle-icon {
+  position: relative;
+}
+
+.nav-toggle-icon::before,
+.nav-toggle-icon::after {
+  position: absolute;
+  left: 0;
+  content: "";
+}
+
+.nav-toggle-icon::before { top: -5px; }
+.nav-toggle-icon::after  { top: 5px; }
+
+/* ----------------------------------------------------------- page layout */
+
+.page-body {
+  display: flex;
+  align-items: flex-start;
+}
+
+.main-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Narrower than the theme's 64rem, because the sidebar now takes a column. */
+@media screen and (min-width: 64em) {
+  .main-content {
+    max-width: 54rem;
+    padding: 2.25rem 3.5rem 4rem;
+    margin: 0 auto;
+  }
+}
+
+@media screen and (min-width: 42em) and (max-width: 64em) {
+  .main-content { padding: 2rem 2.5rem 3rem; }
+}
+
+/* Keep headings clear of the sticky header when jumped to from the contents. */
+.main-content h1,
+.main-content h2,
+.main-content h3,
+.main-content h4 {
+  scroll-margin-top: calc(var(--bh-header-h) + 0.75rem);
+}
+
+.main-content h1:first-child {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  line-height: 1.25;
+}
+
+/* ------------------------------------------------------------- sidebar */
+
+.sidebar {
+  position: sticky;
+  top: var(--bh-header-h);
+  z-index: 20;
+  flex: 0 0 var(--bh-sidebar-w);
+  width: var(--bh-sidebar-w);
+  height: calc(100vh - var(--bh-header-h));
+  padding: 1.1rem 0 3rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-size: 0.95rem;
+  background-color: var(--bh-sidebar-bg);
+  border-right: 1px solid var(--bh-rule);
+}
+
+.nav-section {
+  margin: 1.1rem 0 0.35rem;
+  padding: 0 1.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--bh-muted);
+}
+
+.nav-section:first-child { margin-top: 0; }
+
+.nav-list {
+  margin: 0 0 0.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-item > a {
+  display: block;
+  padding: 0.35rem 1.25rem;
+  color: var(--bh-text);
+  border-left: 3px solid transparent;
+}
+
+.nav-item > a:hover {
+  color: var(--bh-green);
+  text-decoration: none;
+  background-color: rgba(21, 153, 87, 0.06);
+}
+
+.nav-item.is-current > a {
+  font-weight: 700;
+  color: var(--bh-green);
+  background-color: #fff;
+  border-left-color: var(--bh-green);
+}
+
+/* -------------------------------------------- table of contents for a page */
+
+.toc {
+  margin: 0.2rem 0 0.5rem 1.9rem;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid #dbe2e7;
+}
+
+.toc a {
+  display: block;
+  padding: 0.22rem 0.9rem 0.22rem 0.7rem;
+  margin-left: -1px;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: #5f6f79;
+  border-left: 2px solid transparent;
+}
+
+.toc a:hover {
+  color: var(--bh-green);
+  text-decoration: none;
+  background-color: rgba(21, 153, 87, 0.06);
+}
+
+.toc a.is-active {
+  font-weight: 600;
+  color: var(--bh-green);
+  border-left-color: var(--bh-green);
+  background-color: rgba(21, 153, 87, 0.08);
+}
+
+.toc .toc-h3 a {
+  padding-left: 1.5rem;
+  font-size: 0.8rem;
+  color: #74838c;
+}
+
+/* -------------------------------------------------------------- footer */
+
+.site-footer {
+  font-size: 0.9rem;
+  color: var(--bh-muted);
+}
+
+/* --------------------------------------------------- small screens */
+
+.nav-scrim { display: none; }
+
+@media screen and (max-width: 63.99em) {
+  .nav-toggle { display: inline-flex; }
+
+  .sidebar {
+    position: fixed;
+    top: var(--bh-header-h);
+    left: 0;
+    bottom: 0;
+    height: auto;
+    width: min(20rem, 84vw);
+    flex-basis: auto;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: 0 0 2rem rgba(0, 0, 0, 0.18);
+  }
+
+  body.nav-open .sidebar { transform: translateX(0); }
+
+  body.nav-open .nav-scrim {
+    display: block;
+    position: fixed;
+    top: var(--bh-header-h);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 15;
+    background: rgba(30, 40, 46, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
+}
+
+@media screen and (max-width: 42em) {
+  :root { --bh-header-h: 3rem; }
+
+  .site-brand { font-size: 0.95rem; }
+  .site-brand-sub { display: none; }
+  .nav-toggle-text { display: none; }
+  .nav-toggle { margin-right: 0.7rem; }
+  .main-content h1:first-child { font-size: 1.6rem; }
+}

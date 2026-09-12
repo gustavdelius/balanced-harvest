@@ -1,14 +1,14 @@
 # Why production is proportional to biomass
 
-Figure 2b of [index.md](index.md) shows biomass and production rate tightly
-correlated across species, over six decades. That relationship is the premise
-the whole paper rests on: it is why $$F_i \propto P_i$$ makes fishing mortality
+[Figure 2b of the overview](index.md) shows biomass and production rate
+tightly correlated across species, over six decades. That relationship is the
+premise the whole paper rests on: it is why $$F_i \propto P_i$$ makes fishing mortality
 track abundance, and why $$F_i \propto P_i/B_i$$ barely differs from a constant
 $$F$$. This page asks where it comes from, and then tries twice to break it.
 
 Everything below is measured, not argued.
 
-Three results:
+Four results:
 
 1. $$P/B$$ is a community property, not a species property. It equals the
    biomass-weighted mean death rate, and mortality in this model is a function
@@ -34,6 +34,28 @@ Reproduce with `Rscript run_egg_assembly.R <seed> <varied|fixed>`,
 `Rscript run_activity_harvest.R <seed>`.
 
 ---
+
+## The names and symbols used here
+
+The model is Law & Plank's, written out in full in
+[the overview](index.md). The one feature of it that this whole page turns on
+is that **species differ in only two drawn quantities** — maximum body mass
+$$w_{\max,i}$$ and larval death rate $$\mu_{\mathrm{egg},i}$$ — and are
+identical in everything else, including egg mass. The experiments below add a
+third axis and see what happens.
+
+| | |
+|---|---|
+| `eco1` | the 15-species assemblage behind the paper's Figs 2-4, grown from seed 101 with the same search-rate coefficient $$A$$ for every species |
+| `eco_r1`, `eco_r2`, `eco_r3` | three further assemblages (seeds 201-203) with the search rate randomised per species, $$A_i = z_i A$$, $$z_i \sim N(1, 0.1)$$ |
+| `varied_301`, `fixed_301`, … | egg-mass runs, named *arm* underscore *seed*: `varied` draws an egg mass per species, `fixed` keeps the paper's common $$w_0$$ |
+| `neutral_301`, `gradient_301`, … | activity runs: `neutral` gives the activity axis a predation cost, `gradient` is the paper's own treatment |
+| $$B_i$$, $$P_i$$ | biomass and somatic production rate of species *i*, both measured over the harvested range $$w > w_f = 400$$ g (Eqs 2.3, 2.4) |
+| $$\alpha$$ | the regression slope of $$\log B_i$$ on $$\log P_i$$ across the species of one assemblage. $$\alpha \approx 1$$ is the paper's premise, and every experiment below is a way of trying to move it |
+| $$z_i$$ | activity factor: multiplies species *i*'s search rate **and** its intrinsic mortality, so faster feeders also die faster |
+| $$\theta$$ | the interaction matrix — 0.5 on the diagonal (cannibalism), 0.2 off it. $$\theta_{ij}$$ is how readily *i* eats *j*, so column *j* is how readily *j* is eaten |
+| $$R_0$$ | lifetime reproductive output of a rare invader; $$R_0 = 1$$ is the invasion threshold |
+| `LP_FISH`, `vuln_exp` | the fish parameter list in [`R/lp_constants.R`](https://github.com/gustavdelius/balanced-harvest/blob/main/R/lp_constants.R), and the switch in it that couples vulnerability to activity. `vuln_exp = 0` is the paper |
 
 ## 1. Where the relationship comes from
 
@@ -64,10 +86,26 @@ mortality rate.
 
 A fish's per-capita rates are set by where it sits in the community spectrum,
 not by what it is. Predation mortality comes from the whole assemblage through
-an almost uniform interaction matrix; the background term of Eq. (A.7) is a
-function of size and local feeding conditions; larval mortality acts only below
-$$w_L = 0.1$$ g. Measured across the 15 species of `eco1` at 0.2-30 g — past
-the larval term, below every species' $$w_\mathrm{mat}$$:
+an almost uniform interaction matrix. Larval mortality acts only below
+$$w_L = 0.1$$ g. And the background term, Eq. (A.7), depends on the species
+only through how well it is feeding:
+
+$$
+\mu^{b}_i(w,t) = \mu_b^{(0)} \left(\frac{w}{w_0}\right)^{-\xi}
+  \frac{\tilde g_i(w_0,t)}{\tilde g_i(w,t)},
+  \qquad
+  \mu_b^{(0)} = 0.1\ \mathrm{yr^{-1}},\quad \xi = 0.15,
+$$
+
+with $$\tilde g_i = K E_i/w$$ the mass-specific rate of food intake and
+$$w_0 = 10^{-3}$$ g the egg mass. So it is a function of body size and of local
+feeding conditions, and those are community properties: a fish of a given size
+eats what the spectrum around it offers, whatever species it belongs to. (This
+is the "ratio" reading of an equation the paper prints the other way up; see
+[mu_b.md](mu_b.md).)
+
+Measured across the 15 species of `eco1` at 0.2-30 g — past the larval term,
+below every species' $$w_\mathrm{mat}$$:
 
 | | max/min across species |
 |---|---|
@@ -128,11 +166,22 @@ levers on $$P/B$$ are at the egg-and-larva end.
 
 ## 2. Egg mass: a lever that assembly removes
 
-The paper gives every species the same egg mass $$w_0 = 10^{-3}$$ g (Table 2).
-Real egg sizes span decades and are the classic life-history axis decoupled
-from adult size, and the larval mortality of Eq. (A.6) acts on *absolute*
-size — so a species with a 0.1 g egg starts at the top of the gauntlet that
-generates a third to a half of a small-egg species' production.
+The paper gives every species the same egg mass $$w_0 = 10^{-3}$$ g (its
+Table 2). Real egg sizes span decades and are the classic life-history axis
+decoupled from adult size, so this is the obvious thing to vary.
+
+The reason it ought to move $$P/B$$ is that larval mortality, Eq. (A.6), is a
+reverse sigmoid in *absolute* body mass,
+
+$$
+\mu^{L}_i(w) = \frac{\mu_{\mathrm{egg},i}}{1 + (w/w_L)^{\rho_L}},
+\qquad w_L = 0.1\ \mathrm{g},\quad \rho_L = 5,
+$$
+
+with $$\mu_{\mathrm{egg},i} \approx 30$$ yr⁻¹ — two orders of magnitude above
+anything an adult experiences. A species with a 0.1 g egg is therefore born at
+the *top* of that gauntlet, skipping the size range that generates a third to a
+half of a small-egg species' production.
 
 Egg mass was drawn log-uniform over $$[10^{-3}, 10^{-1}]$$ g, upwards from the
 paper's value to $$w_L$$. Upwards because mizer takes the size grid's floor
@@ -192,9 +241,20 @@ climbed it to the ceiling, and the $$P/B$$ variation never materialised.
 
 ## 3. Activity: a lever that works, once it is given a cost
 
-The model already has a fast-slow axis. The activity factor $$z_i$$ scales a
-species' search volume **and** its intrinsic mortality, so that "faster feeders
-also die faster" — but not the predation others impose on it.
+The model already has a fast-slow axis, and the paper already uses it: the
+activity factor $$z_i$$ is what makes `eco_r1`-`eco_r3` differ from `eco1`.
+It enters by scaling a species' search rate and its intrinsic mortality
+together,
+
+$$
+A_i \to z_i A, \qquad
+\mu_{\mathrm{egg},i} \to z_i \mu_{\mathrm{egg},i}, \qquad
+\mu_b^{(0)} \to z_i \mu_b^{(0)},
+$$
+
+so that "faster feeders also die faster" — but it does **not** scale the
+predation that other species impose on it, which is the column of $$\theta$$
+belonging to that species.
 
 That leak is fatal. Dropping a probe species into the assembled `eco1` at
 negligible abundance and computing its lifetime reproductive output:
@@ -308,11 +368,12 @@ the mechanism above suggests, and this strengthens the paper's premise.
 
 ## 4. The three rules on a fast-slow ecosystem
 
-Figure 3's middle row shows BH<sub>P/B</sub> nearly flat across species, and
-that is the paper's argument for why a constant exploitation ratio is barely
-distinguishable from a constant $$F$$. That argument rests on $$P/B$$ being
-near-constant, which is a property of the paper's parameterisation rather than
-of size-spectrum ecosystems in general — so it should not survive here.
+The middle row of [Figure 3](index.md) shows BH<sub>P/B</sub> allocating
+nearly the same fishing mortality to every species, and that is the paper's
+argument for why a constant exploitation ratio is barely distinguishable from
+a constant $$F$$. The argument rests on $$P/B$$ being near-constant, which is a
+property of the paper's parameterisation rather than of size-spectrum
+ecosystems in general — so it should not survive here.
 
 All three rules were calibrated to the same total yield at year 50 against
 $$F = 0.1$$, exactly as the paper does it, on each of the three neutral
@@ -359,9 +420,9 @@ what rarity is made of. Only tracking abundance protects biodiversity.
 
 Under BH<sub>P</sub> the worst-affected species is the *most abundant* one, by
 design: effort is deliberately concentrated there. So "worst species relative
-to control", the metric used in [index.md](index.md) and by the paper, measures
-harm to a common species under one rule and harm to a rare one under another,
-and the comparison between them means less than it appears to.
+to control", the metric used in [the overview](index.md) and by the paper,
+measures harm to a common species under one rule and harm to a rare one under
+another, and the comparison between them means less than it appears to.
 
 On that metric BH<sub>P</sub>'s advantage over fixed $$F$$ looks like
 0.95x, 1.40x, 1.60x. Conditioned on rarity it looks quite different:
@@ -388,10 +449,12 @@ column is the more robust statement.
 
 ### What has not been tested
 
-BH<sub>P</sub> versus BH<sub>B</sub>. The finding in
+BH<sub>P</sub> against BH<sub>B</sub> — the paper's production rule against the
+control that sets $$F_i \propto B_i$$ instead. The finding in
 [robustness-results.md](robustness-results.md) that $$F \propto B$$ does
-everything $$F \propto P$$ does is a corollary of $$P/B$$ being flat, so the
-two rules should separate here. They have not been run.
+everything $$F \propto P$$ does is a corollary of $$P/B$$ being flat, so it
+need not survive an assemblage in which $$P/B$$ is not. These runs have not
+been done.
 
 ## Numerics
 
@@ -428,5 +491,6 @@ discretisation error the paper's own $$\Delta t = 0.01$$ carries at $$Z = 1$$.
   it, for the grid reason given above, so every species in those runs has at
   least the paper's egg mass.
 - `varied_301` has a biomass span of 0.96 decades and so fails Appendix B's
-  fourth selection criterion. It is not a valid Law & Plank ecosystem and
-  should not be used downstream.
+  fourth selection criterion, that biomass span roughly four orders of
+  magnitude across species. It is not a valid Law & Plank ecosystem and should
+  not be used downstream.

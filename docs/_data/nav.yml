@@ -1,0 +1,29 @@
+# Site navigation, rendered in the sidebar by _layouts/default.html.
+# `url` must match Jekyll's page.url exactly ("/" for index.md, "/name.html"
+# otherwise), because the layout uses it to mark the current page.
+- section: The reimplementation
+  items:
+    - title: Overview
+      url: /
+      blurb: The paper reproduced in mizer, figure by figure
+    - title: Mapping onto mizer
+      url: /mapping.html
+      blurb: Term-by-term correspondence between the two formulations
+    - title: Resolving Eq. (A.7)
+      url: /mu_b.html
+      blurb: An ambiguity in the background mortality, and the reading taken here
+
+- section: Investigations
+  items:
+    - title: Robustness — the plan
+      url: /robustness.html
+      blurb: Which arbitrary choices could change the conclusion
+    - title: Robustness — results
+      url: /robustness-results.html
+      blurb: What the experiments actually found
+    - title: Why B ∝ P
+      url: /life-history.html
+      blurb: Where the biomass–production relationship comes from
+    - title: A real ecosystem
+      url: /north-sea.html
+      blurb: The three rules run on mizer's North Sea model

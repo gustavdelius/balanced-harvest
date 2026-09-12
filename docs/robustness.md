@@ -7,6 +7,11 @@ section 3.6). It is written against
 the reimplementation in this repository, and names the code hooks each
 experiment would need.
 
+It assumes the model set out equation by equation in
+[the overview](index.md), and the ecosystem names used there: `eco1` is the
+15-species assemblage behind the paper's Figs 2-4, and `eco_r1`-`eco_r3` are
+three more with the search rate randomised across species.
+
 ## 1. The claim, stated precisely
 
 > At matched total yield, setting fishing mortality in proportion to somatic
@@ -478,16 +483,17 @@ plankton cap (`LP_PLANKTON$w_max`), `dx` (`LP_NUMERICS`), `w_f`
 
 To add:
 
-* new rules in `lp_F()`: `"BHB"` (`c B_i`), `"power"` (`c B_i^theta`), and
-  `"frozen"` (a precomputed constant vector of `F_i`);
-* a measurement range for `P` and `B` independent of the harvested range — a
-  second index alongside `other_params$lp_jf`;
-* an update interval and an observation-error model in `lpFMort()` — needs a
-  small state object in `other_params`, since mizer's rate functions cannot
-  write back to `params`; simplest is to project in annual segments and reset
-  the frozen `F_i` between them;
-* `reproduction_level(params) <- ...` in `lp_params()`, plus a re-relaxation,
-  since imposing `R_max` moves the steady state;
+* ~~new rules in `lp_F()`~~ — done: `"BHB"`, `"power"` and `"frozen"`, all
+  sharing the single form $$F_i = c\,z'_i\,g_i$$;
+* ~~a measurement range for `P` and `B` independent of the harvested range~~ —
+  done, as `other_params$lp_jm` alongside `lp_jf`;
+* ~~an update interval and an observation-error model~~ — done, as
+  `lp_harvest_periodic()`: the projection runs in segments, and at each segment
+  boundary the state is observed (optionally with log-normal error), $$F_i$$ is
+  frozen at that value, and the segment is projected;
+* ~~`reproduction_level(params) <- ...`~~ — done, and no re-relaxation is
+  needed: `setBevertonHolt()` rescales `erepro` so the steady state is
+  preserved exactly, which is what makes Phase 3 item 8 a clean experiment;
 * species-relative `w_f`, which makes the selectivity a full species-by-size
   array rather than one shared mask;
 * a mortality-decomposition recorder for item 7, tracking `f_mort` and

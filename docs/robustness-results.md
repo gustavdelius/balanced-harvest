@@ -1,26 +1,63 @@
 # Robustness investigation: results
 
-What came out of the plan in [robustness.md](robustness.md). Phases 1 and 2 and
-Phase 3 items 8 and 8b are complete. Everything below is measured, not argued.
+What came out of the plan in [robustness.md](robustness.md). Phases 1, 2, 4 and
+5 are complete, as are Phase 3 items 8, 8b, 10 and 11. Everything below is
+measured, not argued, and where a measurement contradicts something I wrote
+earlier in the plan or in an earlier phase, the correction is stated rather than
+quietly applied.
 
-Three headline results:
+**What survives.** The paper's qualitative conclusion is robust. Replicated over
+thirteen independently assembled ecosystems, the ranking
+BH<sub>P</sub> > fixed *F* > BH<sub>P/B</sub> holds **13 times out of 13**, and
+it does not depend on how yields are matched: each rule's whole
+yield-biodiversity frontier was computed, and they never cross. The effect size
+varies fourfold across ecosystems (median 2.4×, range 1.3–5.2×), so
+single-ecosystem figures should be read as illustrative.
 
-1. The calibration criterion the plan called "the single most load-bearing
-   arbitrary choice" does not matter at all. The rules' yield-biodiversity
-   frontiers never cross.
-2. Production is not the active ingredient. $$F$$ proportional to *biomass* does everything $$F$$ proportional to
-   production does, and about three-quarters of
-   the benefit comes from the initial allocation across species rather than
-   from the adaptive feedback the paper emphasises.
-3. The plankton cannot be made contestable without destroying the large-bodied
-   community the paper harvests - and in the communities that survive doing so,
-   BH<sub>P</sub>'s advantage inverts.
-4. Imposing a stock-recruitment relationship on the published ecosystem, holding
-   the community exactly fixed, shrinks BH<sub>P</sub>'s advantage from 3.4x to
-   1.0x. The paper's result is contingent on its deliberate choice to have no
-   compensatory recruitment.
+**What it depends on.** Three of the paper's choices carry the result.
+Imposing a stock-recruitment relationship on the published ecosystem, holding
+the community exactly fixed, shrinks BH<sub>P</sub>'s advantage from 3.4× to
+1.0×: the density dependence the harvest rule supplies is largely redundant with
+the density dependence a real population already has, and the model has none of
+the latter by deliberate design. And the plankton cannot be made contestable
+without destroying the large-bodied community the paper harvests at all —
+richness falls from 15 species to 5 and nothing reaches the 400 g entry size —
+so the inexhaustible resource is doing more work than merely suppressing the
+recruitment brake. The third is the 400 g entry size: the conclusion holds at
+every entry size tested, but the advantage runs from 1.2× at 100 g to 3.7× at
+800 g, because raising the entry size is what creates the recruitment
+overfishing that the feedback then prevents.
 
-Reproduce with `Rscript run_robustness.R` and `Rscript run_resource_sweep.R`.
+**What is not the mechanism the paper describes.** $$F$$ proportional to
+*biomass* matches or beats $$F$$ proportional to production in all thirteen
+ecosystems, so production is a proxy for biomass rather than the active
+ingredient — which matters, since biomass is far easier to estimate. Within the
+family $$F_i \propto B_i^{\theta}$$ the benefit saturates by $$\theta = 0.5$$:
+only the sign and rough magnitude of the density dependence matter.
+
+**What is the mechanism.** The adaptive feedback, and it took thirteen
+ecosystems to establish that — on one it looked as though the initial allocation
+did most of the work. Freezing BH<sub>P</sub>'s year-0 allocation recovers a
+median of only 38% of the benefit, with a range from −4.7 to +0.9, and is often
+worse than fishing everything at the same rate. The feedback is what stops the
+allocation going stale.
+
+**What would make it work better.** Measuring $$P$$ and $$B$$ over the whole
+life cycle rather than only the harvested range improves both balanced-harvesting
+rules, and improves BH<sub>P/B</sub> threefold — so part of that rule's poor
+showing in the paper comes from the restricted measurement window rather than
+from the idea of a constant exploitation ratio.
+
+**How it would fare in practice.** The feedback tolerates infrequent updating
+remarkably well — every 5, 10, even 25 years is as good as continuous, because
+the ecosystem's own timescale is decades. It does not tolerate bad estimates:
+with observation error of log-scale s.d. 1.0, BH<sub>P</sub> becomes *worse*
+than fixed *F* on average. It protects against structural uncertainty, not
+observational uncertainty.
+
+Reproduce with `run_robustness.R` (phases 1, 2), `run_resource_sweep.R`
+(item 8b), `run_recruitment.R` (item 8), `run_replication.R` (phase 5),
+`run_implementation.R` (phase 4) and `run_fishery_design.R` (items 10, 11).
 
 ---
 
@@ -31,7 +68,16 @@ density $$N_i(w,t)$$ per unit mass per m². The model grid is
 $$w_1 < \dots < w_J$$ with $$w_1 = 1$$ mg and bin widths $$\Delta w_j$$, and
 $$g_{ij}(t)$$ is mizer's `e_growth`, the somatic growth rate $$dw/dt$$ in
 g yr⁻¹ — equal to $$\epsilon_i(w)\,\tilde g_i(w,t)$$ in the paper's Appendix A
-notation. Every experiment uses $$T = 50$$ years of fishing.
+notation. Every experiment uses $$T = 50$$ years of fishing. The model itself,
+equation by equation, is in [the overview](index.md).
+
+The ecosystems are named after the seed they were assembled from, by the
+Appendix B procedure described in [the overview](index.md): `eco1` is the
+15-species assemblage behind the paper's Figs 2-4; `eco_r1`-`eco_r3` are three
+more with the search rate randomised across species; and `eco301`-`eco312` are
+twelve further ones assembled under exactly the `eco1` protocol, used for the
+replication in Phase 5. None of them is the paper's own assemblage, which is
+not recoverable from what the paper reports.
 
 ### The harvest rules
 
@@ -341,15 +387,16 @@ partly because it "automatically integrates over all the paths by which biomass
 flows into components of an ecosystem", but biomass is very much easier to
 estimate, and in this model it does the same job.
 
-**Most of the benefit is the allocation, not the feedback.** Freezing
-BH<sub>P</sub>'s year-0 allocation and holding it constant for 50 years reaches
-0.411, against 0.566 for the adaptive rule and 0.166 for fixed *F* — about
-three-quarters of the benefit on a log scale. The paper's framing is that
-fishing "operating adaptively to follow species' production rates over time,
-contains a feedback that would help to protect species from overfishing in the
-presence of uncertainty". The adaptation does add something real, but simply
-*allocating* less fishing mortality to rarer species at the outset, and then
-never updating it, recovers most of the gain.
+**On this ecosystem, most of the benefit looks like the allocation rather than
+the feedback.** Freezing BH<sub>P</sub>'s year-0 allocation and holding it
+constant for 50 years reaches 0.411, against 0.566 for the adaptive rule and
+0.166 for fixed *F* — about three-quarters of the benefit on a log scale.
+
+**This does not survive replication.** Across thirteen ecosystems the fraction
+recovered ranges from −4.66 to 0.94 with a median of 0.38, and the frozen rule
+is often worse than fishing everything at the same rate. See Phase 5 below;
+eco1 turns out to be near the favourable end of the range, and the adaptive
+feedback matters much more than this single ecosystem suggests.
 
 **The benefit saturates, and only the sign of $$\theta$$ is critical.** Writing
 the family as $$F_i = c\,B_i^{\theta}$$, the paper's three rules are
@@ -523,6 +570,226 @@ transients. Maximum unfished drift over 50 years falls from 83% at $$L = 0$$ to
 21% at $$L = 0.9$$, which is further evidence that the quasi-equilibrium the
 paper starts from is as unsettled as it is partly *because* recruitment is
 uncompensated.
+
+## Phase 5 — replication across thirteen ecosystems
+
+Everything above rests on one to four assembled ecosystems. Twelve further
+ecosystems were assembled under exactly the eco1 protocol — no randomisation of
+the search rate, $$z'_i = 1$$, $$F_{\mathrm{ref}} = 0.1$$ — giving thirteen
+comparable replicates, and the frontier comparison was repeated on all of them
+for the paper's three rules plus the two Phase 2 controls that carried the load.
+
+All thirteen reached the full 15 species within the 40-attempt cap (18–30
+attempts, median 25, against the paper's 25), each spanning roughly two decades
+of maximum body mass, with 14 or 15 species above the 400 g entry size. No
+assemblage had to be screened out, so the distributions below are over every
+replicate rather than a chosen subset.
+
+Worst-affected species, as a fraction of its unfished trajectory, read at each
+ecosystem's own reference yield:
+
+| rule | median | range |
+|---|---|---|
+| fixed *F* | 0.234 | 0.124 – 0.460 |
+| **BH<sub>P</sub>** | **0.593** | 0.380 – 0.670 |
+| BH<sub>P/B</sub> | 0.081 | 0.036 – 0.359 |
+| $$F \propto B$$ | **0.660** | 0.522 – 0.717 |
+| frozen BH<sub>P</sub> allocation | 0.372 | 0.009 – 0.585 |
+
+### What replication confirms
+
+**The ranking is completely robust.** BH<sub>P</sub> beats fixed *F* in 13 of
+13, beats BH<sub>P/B</sub> in 13 of 13, and the full ordering
+BH<sub>P</sub> > fixed > BH<sub>P/B</sub> holds in 13 of 13. The paper's
+qualitative conclusion survives replication without exception.
+
+**The effect size varies fourfold.** BH<sub>P</sub>'s advantage over fixed *F*
+in the worst-affected species has a median of **2.42×**, ranging from 1.27× to
+5.24×. eco1, the ecosystem all the earlier phases were reported on, gives 3.41×
+— comfortably above the median. Single-ecosystem effect sizes should be read as
+illustrative, not as estimates.
+
+**Production really is doing no work.** $$F \propto B_i$$ beats
+$$F \propto P_i$$ in **13 of 13** ecosystems, by a median of 10% and never by
+less than 6%. Phase 2 called this a tie on one ecosystem; with thirteen it is a
+consistent, if small, win for the simpler and far more measurable quantity.
+
+### What replication overturns
+
+**The frozen-allocation result does not hold.** On eco1, freezing
+BH<sub>P</sub>'s year-0 allocation recovered 74% of the gap between fixed *F*
+and adaptive BH<sub>P</sub>, which Phase 2 read as "most of the benefit is the
+allocation, not the feedback". Across thirteen ecosystems the fraction recovered
+has a median of 0.38 and a range of **−4.66 to 0.94**. A negative value means
+the frozen allocation is *worse than fishing every species at the same rate*,
+and that happens in 4 of 12 readable cases; frozen beats fixed *F* in only 8 of
+12. In eco303 the frozen rule cannot reach the reference yield **at any
+intensity** — pushing harder collapses the stocks and total yield falls — so
+there is no intensity at which it is comparable at all.
+
+eco1's 0.74 sits near the top of that range. Generalising from it was wrong.
+
+The mechanism is clear enough in hindsight. A frozen allocation assigns high
+fishing mortality to whatever was abundant in year 0 and never revises it, so a
+species that starts abundant and then declines keeps being hit at its original
+rate — the same failure mode as fixed *F*, but concentrated on the species the
+rule singled out. The adaptive feedback is not a refinement on top of a good
+allocation; it is what stops the allocation going stale. **This vindicates the
+paper's emphasis on adaptation**, which Phase 2 had wrongly downplayed.
+
+### A methodological correction
+
+Terminal yield is not always monotone in fishing intensity. Rules without a
+stabilising feedback overfish into declining yield, so their frontiers double
+back: 6 of 65 frontiers here peak at an intermediate intensity, and they are all
+BH<sub>P/B</sub> (3) or frozen (3). BH<sub>P</sub>, $$F \propto B$$ and fixed
+*F* are monotone in all thirteen — itself a result worth stating, since it means
+the density-dependent rules do not have an interior yield maximum to overshoot
+over this range.
+
+Interpolating a metric against yield across such a turnover mixes the two
+branches. `lp_at_yield()` now restricts to the ascending branch up to the yield
+maximum, and returns `NA` — meaning "unreachable at any intensity" — rather than
+extrapolating. This changed BH<sub>P/B</sub>'s reported range in this section
+from a spurious $$7\times10^{-8}$$ low end to 0.036, and moved the
+frozen-versus-fixed count from 6/12 to 8/12. Re-deriving Phases 1 and 2 with the
+corrected reader leaves every number in them unchanged, because their reference
+yields sit on the ascending branch in all cases.
+
+## Phase 4 — the rule tolerates infrequent updating, but not bad estimates
+
+Phase 5 established that the adaptive feedback, not the initial allocation, is
+what makes BH<sub>P</sub> work. That makes it matter how well the feedback
+survives being applied the way a real fishery would apply it: recalculated every
+few years from survey estimates, rather than continuously from perfect
+knowledge. Two degradations were imposed together on five ecosystems — an update
+interval, and mean-preserving log-normal error of log-scale s.d. $$\sigma$$
+redrawn independently at every update.
+
+BH<sub>P</sub>'s advantage over fixed *F* in the worst-affected species:
+
+| update interval | $$\sigma$$ | advantage, median [range] |
+|---|---|---|
+| continuous | 0 | 1.78× [1.27, 3.41] |
+| 5 yr | 0 | 1.78× [1.27, 3.40] |
+| 10 yr | 0 | 1.78× [1.29, 3.39] |
+| 25 yr | 0 | 2.06× [1.51, 3.45] |
+| never (set once at year 0) | 0 | 1.35× [0.92, 2.47] |
+| 5 yr | 0.5 | 1.81× [0.66, 3.14] |
+| 10 yr | 0.5 | 1.76× [0.66, 2.11] |
+| 5 yr | 1.0 | **0.73× [0.00, 1.44]** |
+
+**Updating frequency barely matters.** Recalculating $$F_i$$ every 5 or 10 years
+is indistinguishable from recalculating it continuously — the worst-species
+outcome on eco1 moves from 0.566 to 0.564 to 0.563. Even a 25-year interval is
+fine. Only never revising the allocation degrades the rule, to 1.35× and as low
+as 0.92× — worse than fishing everything at the same rate.
+
+This is a genuinely encouraging result for the paper's policy claim, and the
+reason is that the ecosystem's own timescale is long: the fished trajectories in
+Fig. 3 take decades to develop, so a ten-year-old estimate of $$P_i$$ is still
+nearly right. A decadal survey cycle is enough to keep the feedback alive. What
+fails is not slow updating but *no* updating.
+
+**Estimate quality matters much more.** At $$\sigma = 0.5$$ — a typical
+estimate wrong by a factor of about 1.65 — the median advantage is untouched,
+but the range now reaches 0.66, meaning that in one ecosystem out of five
+BH<sub>P</sub> ends up *worse* than uniform fishing. At $$\sigma = 1.0$$, a
+factor of about 2.7, the median advantage falls to **0.73×**: on balance worse
+than fixed *F*, and in one ecosystem the worst species is driven to
+$$4\times10^{-4}$$ of its unfished trajectory.
+
+The asymmetry between the two is worth stating plainly, because it is the
+opposite of what the paper's framing suggests. Law & Plank present the adaptive
+feedback as protection "in the presence of uncertainty about how marine
+ecosystems work". It is protection against *structural* uncertainty — not
+knowing how the system will respond — because the rule simply follows whatever
+the state turns out to be. It is not protection against *observational*
+uncertainty: a species whose production is over-estimated is fished
+proportionally harder, with nothing in the rule to arrest it, so estimation
+error feeds straight through into mis-allocated mortality. Fixed *F* has no such
+exposure, because it never consults an estimate at all.
+
+Whether $$\sigma = 0.5$$ or $$1.0$$ is the realistic figure is an empirical
+question this model cannot answer, but the paper's own discussion concedes that
+"the rare species of special importance for conservation are also the species
+for which information on biomass, production rate and fishing mortality is most
+likely to be scarce" — and it is precisely the rare species that the rule has to
+get right.
+
+## Phase 3 items 10 and 11 — the fishery's design
+
+Both of these change the fishery without touching the ecosystem, so the same
+five assembled communities are used throughout.
+
+### Item 10: the entry size $$w_f$$
+
+The paper fishes every species from 400 g upwards and flags the single shared
+knife edge as a simplification. Combined with a fixed $$w_{\mathrm{mat}} =
+w_{\max}/10$$ it means a 1 kg species is fished only as an adult while a 40 kg
+species is fished for a decade before it breeds, so some of "large species are
+vulnerable" may be built into the design rather than discovered.
+
+| $$w_f$$ | reference yield | fixed *F* | BH<sub>P</sub> | BH<sub>P/B</sub> | advantage | readable |
+|---|---|---|---|---|---|---|
+| 100 g | 0.525 | 0.542 | 0.647 | 0.356 | 1.18× [1.06, 1.27] | 5/5 |
+| 200 g | 0.476 | 0.478 | 0.691 | 0.272 | 1.37× [1.17, 2.50] | 5/5 |
+| **400 g (published)** | 0.354 | 0.298 | 0.635 | 0.162 | **1.92× [1.44, 3.41]** | 4/5 |
+| 800 g | 0.204 | 0.206 | 0.686 | 0.092 | 3.71× [1.81, 3.77] | 3/5 |
+
+**The conclusion holds at every entry size, but its size depends strongly on
+$$w_f$$.** BH<sub>P</sub> beats fixed *F* in every ecosystem at every entry size
+tested. But the advantage grows from 1.18× at 100 g to 3.71× at 800 g — roughly
+threefold across the range, with the paper's 400 g sitting in the middle.
+
+The reason is visible in the columns: BH<sub>P</sub>'s own outcome barely moves
+(0.647, 0.691, 0.635, 0.686) while **fixed *F* degrades sharply** (0.542 down to
+0.206). Raising $$w_f$$ concentrates fishing on the species with the longest
+juvenile phase relative to the entry size, which is exactly where a constant
+$$F$$ causes recruitment overfishing — and exactly what BH<sub>P</sub>'s
+feedback arrests, since those species' $$F$$ falls as they decline. So the
+choice of entry size is not neutral: it sets how much damage there is for the
+feedback to prevent. At a low entry size, where nearly everything is fished
+across most of its life, balanced harvesting has little left to offer.
+
+(The 800 g row rests on three ecosystems and the 400 g row on four: with only
+three intensities sampled here, the reference yield is not always bracketed.
+Where it is not, the rule genuinely could not reach that yield within the
+sampled range.)
+
+### Item 11: the range over which $$P$$ and $$B$$ are measured
+
+The paper measures $$P_i$$ and $$B_i$$ over the harvested range only, on the
+grounds that "reliable information is most likely to be available over this
+range". That makes $$P_i$$ exclude juvenile production — most of a species'
+somatic production — and, for a species whose $$w_{\max}$$ is not far above
+$$w_f$$, makes it dominated by the boundary influx term at $$w_f$$. Here the
+measurement range is instead the whole life cycle, with the harvested range left
+at 400 g, so only the rule's *information* changes and not what is caught.
+
+| $$P, B$$ measured over | fixed *F* | BH<sub>P</sub> | BH<sub>P/B</sub> | advantage |
+|---|---|---|---|---|
+| harvested range (published) | 0.298 | 0.635 | 0.162 | 1.92× [1.44, 3.41] |
+| whole life cycle | 0.298 | **0.748** | **0.487** | **2.40× [1.63, 4.96]** |
+
+**Both balanced-harvesting rules do better on whole-life-cycle information, and
+BH<sub>P/B</sub> dramatically so** — its worst-affected species goes from 0.162
+to 0.487, a threefold improvement, purely from measuring the same quantities
+over a wider range.
+
+That is worth dwelling on, because BH<sub>P/B</sub> is the rule the paper
+argues against. Part of its poor showing comes not from the idea of a constant
+exploitation ratio but from the restricted measurement window: $$P_i/B_i$$
+computed over $$[w_f, w_{\max,i}]$$ is nearly the same for every species, which
+is precisely why the paper finds it barely distinguishable from a constant
+$$F$$. Computed over the whole life cycle it varies much more between species —
+small, fast-turnover species have genuinely higher $$P/B$$ — so the rule becomes
+discriminating and much less harmful. BH<sub>P</sub> still wins, but the gap
+narrows from 3.9× to 1.5× on the worst-species measure.
+
+The paper's data-availability argument for the restricted range is reasonable as
+far as it goes, but this suggests the restriction is not cost-free: it degrades
+both rules, and it exaggerates the difference between them.
 
 ## Still to do
 

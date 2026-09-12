@@ -1,3 +1,5 @@
+# Fishing for biodiversity by balanced harvesting
+
 A reimplementation in [mizer](https://sizespectrum.org/mizer/) of
 
 > Law, R. & Plank, M.J. (2023) *Fishing for biodiversity by balanced harvesting.*
@@ -40,6 +42,156 @@ biomass, so it falls away as a stock falls. Fixed $$F$$ has no such feedback,
 and $$P_i/B_i$$ barely changes as a stock thins, so BH<sub>P/B</sub> has almost
 none either.
 
+$$\alpha$$ is the regression slope of $$\log B_i$$ on $$\log P_i$$ across the
+species of an assemblage, and it recurs throughout this site: it is what makes
+BH<sub>P</sub> a feedback rule rather than a fixed allocation, and Figure 4
+below is a direct test of it.
+
+## The model, in equations
+
+The quickest way to say what Law & Plank's model is, is to write it down.
+Everything here is Appendix A of the paper, restated in mizer's variables: the
+per-mass number density $$N_i(w,t)$$ of species *i*, where the paper uses the
+log-density $$u_i(x,t) = w\,N_i$$ with $$x = \ln(w/1\,\mathrm{g})$$. The two are
+the same PDE divided through by $$w$$; [mapping.md](mapping.md) does that term
+by term.
+
+**The dynamics** (Eq. A.1) are McKendrick–von Foerster with a diffusion term:
+
+$$
+\frac{\partial N_i}{\partial t}
+= -\frac{\partial}{\partial w}\Big[ g_i(w,t)\, N_i \Big]
+\;+\; \frac{1}{2}\frac{\partial^2}{\partial w^2}\Big[ D_i(w,t)\, N_i \Big]
+\;-\; \mu_i(w,t)\, N_i ,
+$$
+
+with eggs entering at $$w_0 = 10^{-3}$$ g at the rate $$R_i(t)$$ given below.
+The diffusion term is there because eating a prey item is a discrete jump in
+mass: $$D_i$$ is the second moment of the same prey integral whose first moment
+gives $$g_i$$.
+
+**Feeding** (Eqs A.2, A.4). Search rate is $$A_i w^{\alpha_q}$$, and the feeding
+kernel is a **box** spanning four decades of predator–prey mass ratio,
+$$e^{\beta \pm 3\sigma} = 10$$ to $$10^5$$, with height $$1/(6\sigma)$$:
+
+$$
+E_i(w,t) = \frac{A_i\, w^{\alpha_q}}{6\sigma}
+  \int_{w/10^{5}}^{\,w/10}
+  \Big[\, N_R(w_p,t) + \sum_j \theta_{ij} N_j(w_p,t) \Big]\, w_p\,
+  \mathrm{d}w_p .
+$$
+
+There is **no satiation and no metabolic cost**, so the whole assimilated
+intake is split between growth and reproduction by the allocation
+$$\epsilon_i(w) = 1 - \psi_i(w)$$ of Eq. (A.8):
+
+$$
+g_i(w,t) = \epsilon_i(w)\, K\, E_i(w,t),
+\qquad
+\psi_i(w) = \frac{1}{1 + (w/w_{\mathrm{mat},i})^{-\rho_m}}
+            \left(\frac{w}{w_{\max,i}}\right)^{\rho_\infty} ,
+$$
+
+with $$w_{\mathrm{mat},i} = w_{\max,i}/10$$. Eggs are produced without any
+stock-recruitment relationship (Eq. A.9):
+
+$$
+R_i(t) = \frac{\epsilon_R}{w_0}\int \psi_i(w)\, K\, E_i(w,t)\, N_i(w,t)\,
+         \mathrm{d}w .
+$$
+
+**Mortality** is predation, a larval term and a background term,
+$$\mu_i = \mu^{\mathrm{pred}}_i + \mu^{L}_i + \mu^{b}_i$$. Predation
+(Eq. A.3) is the mirror of the encounter integral,
+
+$$
+\mu^{\mathrm{pred}}_i(w_p,t) = \sum_j \theta_{ji}\,
+  \frac{A_j}{6\sigma} \int_{10\,w_p}^{10^{5} w_p}
+  w^{\alpha_q}\, N_j(w,t)\, \mathrm{d}w ,
+$$
+
+the larval term (Eq. A.6) is a reverse sigmoid that has died away by
+$$w_L = 0.1$$ g,
+
+$$
+\mu^{L}_i(w) = \frac{\mu_{\mathrm{egg},i}}{1 + (w/w_L)^{\rho_L}} ,
+$$
+
+and the background term (Eq. A.7) is **food-dependent** — metabolic need
+relative to how fast food is arriving, so it is a starvation feedback rather
+than a constant:
+
+$$
+\mu^{b}_i(w,t) = \mu_b^{(0)} \left(\frac{w}{w_0}\right)^{-\xi}
+  \frac{\tilde g_i(w_0,t)}{\tilde g_i(w,t)},
+  \qquad \tilde g_i = K E_i / w .
+$$
+
+That last ratio is printed the other way up in the paper, which changes the
+model qualitatively; [mu_b.md](mu_b.md) sets out why this implementation
+inverts it.
+
+**The plankton** (Eqs A.11-A.14) is logistic with immigration, and has no size
+structure of its own — cells neither grow nor are born into a smaller class:
+
+$$
+\frac{\partial N_R}{\partial t}
+= r(w)\, N_R \left(1 - \frac{N_R}{a(w)}\right)
+\;-\; \mu^{\mathrm{pred}}_R(w,t)\, N_R + I(w),
+$$
+
+with $$r(w) = r_0 w^{-\rho}$$, and carrying capacity $$a$$ and immigration
+$$I$$ both power laws in $$w$$ anchored at 1 mg with $$I_0 = a_0$$ — so
+$$I/a = 1$$ yr⁻¹ at *every* plankton size, which turns out to matter a great
+deal — see [Is the result robust?](#is-the-result-robust) below.
+
+**What is harvested** (Eqs 2.3, 2.4, 2.6). Everything above the entry mass
+$$w_f$$ is fished at the same rate, and biomass and production are measured
+over that same range:
+
+$$
+B_i(t) = \int_{w_f}^{w_{\max,i}} w\, N_i(w,t)\, \mathrm{d}w,
+\qquad
+Y_i(t) = F_i(t)\, B_i(t),
+$$
+
+$$
+P_i(t) = \underbrace{\int_{w_f}^{w_{\max,i}} g_i(w,t)\, N_i(w,t)\,
+\mathrm{d}w}_{\text{growth inside the range}}
+\;+\; \underbrace{\big[w\, g_i N_i\big]_{w_f}}_{\text{flux in}}
+\;-\; \underbrace{\big[w\, g_i N_i\big]_{w_{\max,i}}}_{\text{flux out}} .
+$$
+
+$$P_i$$ is **somatic production** — the rate at which the harvested part of the
+stock puts on flesh, plus the biomass that grows across $$w_f$$ into the range.
+It is not yield, and not surplus production in the stock-assessment sense. The
+flux out of the top vanishes, because all food goes to reproduction at
+$$w_{\max}$$.
+
+**The parameters** are the paper's Tables 1 and 2, reproduced verbatim in
+[`R/lp_constants.R`](https://github.com/gustavdelius/balanced-harvest/blob/main/R/lp_constants.R):
+
+| | | |
+|---|---|---|
+| $$A_i$$ | 37.5 m² yr⁻¹ g$$^{-\alpha_q}$$ | search-rate coefficient |
+| $$\alpha_q$$ | 0.85 | search-rate exponent (mizer's `q`) |
+| $$\beta,\ \sigma$$ | 6.908, 1.535 | centre and width of the box kernel, in log PPMR |
+| $$K$$ | 0.1 | conversion efficiency (mizer's `alpha`) |
+| $$\mu_b^{(0)},\ \xi$$ | 0.1 yr⁻¹, 0.15 | background mortality at egg size, and its size scaling |
+| $$w_L,\ \rho_L$$ | 0.1 g, 5 | where larval mortality dies away, and how sharply |
+| $$\rho_m,\ \rho_\infty$$ | 15, 0.2 | sharpness of maturation, approach to $$w_{\max}$$ |
+| $$\epsilon_R$$ | 0.2 | reproductive efficiency |
+| $$\theta$$ | 0.5 / 0.2 / 1 | cannibalism / between species / on plankton (Appendix C) |
+| $$r_0,\ \rho$$ | 10 yr⁻¹ at 1 g, 0.15 | plankton rate of increase and its size scaling |
+| $$a_0 = I_0$$ | 2000 m⁻² at 1 mg | plankton carrying capacity and immigration |
+| $$\lambda$$ | 2 | slope of the isolated plankton spectrum |
+| $$w_f$$ | 400 g | entry mass of the fishery |
+| $$\Delta x,\ \Delta t$$ | 0.1, 0.002 yr | log-mass grid step, time step |
+
+Species differ in exactly two things: maximum body mass $$w_{\max,i}$$ and
+larval death rate $$\mu_{\mathrm{egg},i}$$. Everything else is shared across
+species. That single fact is what [life-history.md](life-history.md) is about.
+
 ## Is this really the paper's model?
 
 The paper's model is **not** a standard mizer model. It has no satiation and no
@@ -72,10 +224,36 @@ assembled ecosystems.
 
 ## The ecosystems
 
-Following Appendix B, each ecosystem is assembled by introducing one fish
-species at a time — random maximum body mass (log-uniform, 100 g to 40 kg) and
-random larval death rate — letting the system relax for 50 years, and culling
-anything below 2×10⁻⁶ g m⁻², until 15 species coexist.
+There is no species pool taken from nature here. Following Appendix B, each
+ecosystem is **assembled inside the model**: introduce one fish species at a
+time, with maximum body mass drawn log-uniform over 100 g – 40 kg and larval
+death rate $$\mu_\mathrm{egg}$$ drawn uniform over 28–32 yr⁻¹, start it at a
+low density on a power law, let the system relax for 50 years, cull anything
+below 2×10⁻⁶ g m⁻², and repeat until 15 species coexist. An assemblage is
+accepted only if it meets Appendix B's four criteria: the species coexist, the
+state is close to equilibrium, $$w_{\max}$$ spans a wide range inside the drawn
+limits, and biomass spans roughly four orders of magnitude.
+[`tests/test_ecosystem.R`](https://github.com/gustavdelius/balanced-harvest/blob/main/tests/test_ecosystem.R)
+checks all four, plus the numbers the paper quotes in Sections 2.4 and 3.
+
+Four ecosystems are used throughout this site, and their names recur on every
+page:
+
+- **`eco1`** — seed 101, every species given the same search-rate coefficient
+  $$A_i$$. This is the one Figures 2, 3 and 4 are drawn from, and the one most
+  of the experiments run on.
+- **`eco_r1`, `eco_r2`, `eco_r3`** — seeds 201–203, with $$A_i$$ randomised per
+  species ($$A_i = z_i A$$, $$z_i \sim N(1, 0.1)$$), which is what the paper does
+  for its Figures 5 and 6. The extra life-history variation is the only
+  difference.
+
+Later pages add more, all named after the seed they were assembled from:
+`eco301`–`eco312` are twelve further ecosystems assembled under exactly the
+`eco1` protocol, used for the replication in
+[robustness-results.md](robustness-results.md); and the `varied_*`,
+`fixed_*`, `neutral_*` and `gradient_*` runs of
+[life-history.md](life-history.md) are named *experimental arm* underscore
+*seed*.
 
 | | eco1 | eco_r1 | eco_r2 | eco_r3 | paper |
 |---|---|---|---|---|---|
@@ -198,11 +376,11 @@ On `eco1`, with all three regimes calibrated to the same total yield:
 | **BH<sub>P</sub>** | **0.198** | **0.345** | **0.573** | **0** |
 | BH<sub>P/B</sub> | 0.197 | 0.025 | 0.070 | 3 |
 
-A caveat on the "worst species" column, found while running these rules on the
+A caveat on the "worst species" columns, found while running these rules on the
 fast-slow ecosystems of [life-history.md](life-history.md): under
 BH<sub>P</sub> the worst-affected species is usually the *most abundant* one,
-because that is where the rule deliberately concentrates effort. The column
-therefore measures harm to a common species under one rule and harm to a rare
+because that is where the rule deliberately concentrates effort. The columns
+therefore measure harm to a common species under one rule and harm to a rare
 one under another. Conditioning on rarity instead changes BH<sub>P</sub>'s
 measured advantage there from 0.95-1.6x to 5.4-16.9x.
 
@@ -269,16 +447,23 @@ absence of compensatory recruitment, whether `F ∝ B` would do just as well as
 `F ∝ P`, and whether the *adaptive feedback* or merely the *initial allocation*
 is doing the work — and sets out an investigation.
 
-**[robustness-results.md](robustness-results.md) reports what came out of it.**
+**[robustness-results.md](robustness-results.md) reports what came out of it** —
+phases 1, 2, 4 and 5 and Phase 3 items 8, 8b, 10 and 11, across up to thirteen
+independently assembled ecosystems.
 In short: the calibration criterion turns out not to matter (the frontiers never
 cross, and I was wrong to call it the most load-bearing choice); $$F$$
 proportional to *biomass* does everything $$F$$ proportional to production does;
-about three-quarters of the benefit is the initial allocation across species
-rather than the adaptive feedback; the plankton cannot be made contestable
+the adaptive feedback turns out to be essential, though it took thirteen
+ecosystems to establish that — on one it looked as though the initial allocation
+did most of the work; the plankton cannot be made contestable
 without destroying the large-bodied community the paper harvests; and, most
 consequentially, imposing a stock-recruitment relationship on the published
 ecosystem while holding the community exactly fixed shrinks
-BH<sub>P</sub>'s advantage over fixed $$F$$ from 3.4× to 1.0×.
+BH<sub>P</sub>'s advantage over fixed $$F$$ from 3.4× to 1.0×. Replicated over
+thirteen independently assembled ecosystems, the ranking
+BH<sub>P</sub> > fixed > BH<sub>P/B</sub> holds 13 times out of 13, with the
+advantage varying fourfold (median 2.4×). The feedback tolerates being updated
+only once a decade, but not observation error much beyond a factor of two.
 
 One finding from that work is already in hand. Appendix B nominates competition
 among larvae for plankton as the mechanism that replaces an imposed
