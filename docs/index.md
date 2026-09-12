@@ -1,3 +1,5 @@
+# Fishing for biodiversity by balanced harvesting
+
 A reimplementation in [mizer](https://sizespectrum.org/mizer/) of
 
 > Law, R. & Plank, M.J. (2023) *Fishing for biodiversity by balanced harvesting.*
