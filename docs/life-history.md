@@ -23,15 +23,17 @@ Four results:
    a ten-fold range in age at maturity, $$P/B$$ spread 3.5x wider in logs than
    the paper's. And $$B \sim P$$ *still* holds, with $$\alpha$$ at 0.973-1.003.
 
-4. Run the three harvesting rules on the result and BH<sub>P/B</sub> is no
-   longer a near-duplicate of a fixed $$F$$ — it spans an order of magnitude
-   and tracks turnover at $$r = 0.94$$ — but it still fails to protect rare
-   species, because turnover is orthogonal to rarity. That is a stronger
-   vindication of the paper's conclusion than its own ecosystems provide.
+4. Run the harvesting rules on the result and BH<sub>P/B</sub> is no longer a
+   near-duplicate of a fixed $$F$$ — it spans an order of magnitude and tracks
+   turnover at $$r = 0.94$$ — but it still fails to protect rare species,
+   because turnover is orthogonal to rarity. That is a stronger vindication of
+   the paper's conclusion than its own ecosystems provide. BH<sub>B</sub>
+   likewise still matches or beats BH<sub>P</sub>, on an assemblage built to
+   give production something to do.
 
 Reproduce with `Rscript run_egg_assembly.R <seed> <varied|fixed>`,
-`Rscript run_activity_assembly.R <seed> <neutral|gradient>` and
-`Rscript run_activity_harvest.R <seed>`.
+`Rscript run_activity_assembly.R <seed> <neutral|gradient>`,
+`Rscript run_activity_harvest.R <seed>` and `Rscript run_activity_bhb.R <seed>`.
 
 ---
 
@@ -447,14 +449,53 @@ at $$2.7\times10^{-4}$$ g m⁻², is comfortably above it — and there the
 advantage is 17.7x on a species that genuinely persists. The rarest-third
 column is the more robust statement.
 
-### What has not been tested
+### BH_P against BH_B: production still does no work
 
-BH<sub>P</sub> against BH<sub>B</sub> — the paper's production rule against the
-control that sets $$F_i \propto B_i$$ instead. The finding in
-[robustness-results.md](robustness-results.md) that $$F \propto B$$ does
-everything $$F \propto P$$ does is a corollary of $$P/B$$ being flat, so it
-need not survive an assemblage in which $$P/B$$ is not. These runs have not
-been done.
+[robustness-results.md](robustness-results.md) finds that $$F \propto B_i$$
+beats $$F \propto P_i$$ in 13 of 13 ecosystems. That could be read as an
+artefact of $$P/B$$ being flat: if $$P_i = k B_i$$ with $$k$$ common to every
+species, the two allocations are the same rule up to the calibration constant,
+and any difference between them is noise. These ecosystems test that reading,
+because here the two rules genuinely come apart:
+
+$$
+F_i(\mathrm{BH}_P) \propto P_i = (P_i/B_i)\, B_i \propto z_i B_i,
+\qquad
+F_i(\mathrm{BH}_B) \propto B_i ,
+$$
+
+so BH<sub>P</sub> is BH<sub>B</sub> tilted by the activity factor. Regressing
+$$\log(F_i^{\mathrm{BH}_P} / F_i^{\mathrm{BH}_B})$$ on $$\log z_i$$ gives a
+slope of **0.968 ± 0.080, 0.888 ± 0.105, 1.057 ± 0.110** against the 1.0 the
+algebra demands, at $$R^2 = 0.86$$ to $$0.92$$. The tilt is real and it is
+exactly $$z$$.
+
+It does not help. A fourth rule, calibrated to the same yield target as the
+other three:
+
+| BH<sub>P</sub> relative to BH<sub>B</sub> (>1 favours BH<sub>P</sub>) | seed 301 | seed 302 | seed 303 |
+|---|---|---|---|
+| rarest species | 0.86x | **0.68x** | 0.74x |
+| worst of the rarest third | 0.98x | 0.87x | 0.96x |
+| geometric mean over 15 species | 1.00x | 0.99x | 1.01x |
+
+BH<sub>B</sub> is the equal of BH<sub>P</sub> on the community as a whole and
+better on the species that matter most, by 16% to 47% on the rarest one. So
+multiplying the allocation by $$P/B$$ does not merely fail to help when $$P/B$$
+is flat — it actively costs a little when $$P/B$$ varies by 5 to 8x, and the
+metrics that weight rarity most are where the cost shows. The extra factor is
+orthogonal to rarity, so it can only blur an allocation that should track
+abundance alone.
+
+The one column where BH<sub>P</sub> leads is "worst species overall", by 1.5x
+to 1.9x — and that is the misleading metric again. Under both rules the
+worst-affected species is the *most abundant* one (abundance rank 15, 15, 13),
+and BH<sub>B</sub> presses harder on it precisely because it tracks abundance
+without the tilt. That is the rule working as designed, not failing.
+
+This strengthens the "production is doing no work" finding rather than
+qualifying it: the result survives an assemblage built specifically to give
+production something to do.
 
 ## Numerics
 

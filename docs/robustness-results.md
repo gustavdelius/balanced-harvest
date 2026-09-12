@@ -614,6 +614,14 @@ $$F \propto P_i$$ in **13 of 13** ecosystems, by a median of 10% and never by
 less than 6%. Phase 2 called this a tie on one ecosystem; with thirteen it is a
 consistent, if small, win for the simpler and far more measurable quantity.
 
+One reading of that would be an artefact: across these thirteen ecosystems
+$$P/B$$ varies by less than a factor of two, so $$F \propto P$$ and
+$$F \propto B$$ are nearly the same rule and the gap between them could be
+noise. [life-history.md](life-history.md) tests the reading on assemblages
+built so that $$P/B$$ varies by 5 to 8x, where the two allocations differ by a
+measured factor of $$z$$. $$F \propto B$$ still wins, and by more on the
+rarest species. The finding is not an artefact of flat $$P/B$$.
+
 ### What replication overturns
 
 **The frozen-allocation result does not hold.** On eco1, freezing
