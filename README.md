@@ -30,26 +30,54 @@ same harvested range. `c_P/B` is just a fixed exploitation ratio `E = Y_i/P_i`.
 ## Layout
 
 ```
-R/lp_constants.R    every parameter value from Tables 1, 2 and Appendices B, C
-R/lp_model.R        the ecosystem model of Eqs (A.1)-(A.14) as a MizerParams
-R/lp_assembly.R     sequential assembly of ecosystems (Appendix B)
-R/lp_harvest.R      B_i, P_i, the three rules, and yield (Eqs 2.3-2.9)
-R/lp_figures.R      Figures 2-6
+R/lp_constants.R          every parameter value from Tables 1, 2 and
+                          Appendices B, C
+R/lp_model.R              the ecosystem model of Eqs (A.1)-(A.14) as a
+                          MizerParams object
+R/lp_assembly.R           sequential assembly of ecosystems (Appendix B)
+R/lp_harvest.R            B_i, P_i, the three rules, and yield (Eqs 2.3-2.9)
+R/lp_figures.R            Figures 2-6
+R/lp_experiments.R        the yield-biodiversity frontier machinery the
+                          robustness investigation runs on
+R/lp_resource_variants.R  larval competition for plankton, switched on
+R/ns_*.R                  the separate North Sea exercise: survey biomass,
+                          FishBase species parameters, interaction matrix,
+                          model, runs and figures
 
-run_assembly.R      assembles the ecosystems   -> data/ecosystems.rds
-run_figures.R       applies the three regimes  -> data/results.rds, figures/
+run_assembly.R            the four ecosystems     -> data/ecosystems.rds
+run_figures.R             the three regimes       -> data/results.rds,
+                                                     figures/
+run_robustness.R          phases 1 and 2          -> data/robustness/
+run_recruitment.R         phase 3 item 8          -> data/recruitment/
+run_resource_sweep.R      phase 3 item 8b         -> data/resource/
+run_fishery_design.R      phase 3 items 10, 11    -> data/fishery/
+run_implementation.R      phase 4                 -> data/implementation/
+run_replication.R         phase 5, 13 ecosystems  -> data/replication/
+run_egg_assembly.R        egg mass as an axis     -> data/egg/
+run_activity_assembly.R   a fast-slow continuum   -> data/activity/
+run_activity_harvest.R    the rules on it         -> data/activity_harvest/
+run_activity_bhb.R        BH_B added to those     -> data/activity_harvest/
+R/ns_pdf.R                the North Sea figures   -> balanced_harvesting.pdf
 
 tests/test_model.R        mizer's rates vs hand-coded integrals of the paper
-tests/test_convergence.R  the two numerical liberties taken (see docs/mapping.md)
+tests/test_convergence.R  the two numerical liberties taken (see
+                          docs/mapping.md)
 tests/test_ecosystem.R    the assembled ecosystems vs the paper's own criteria
 
-docs/mapping.md     equation-by-equation mapping onto mizer, and the deviations
-docs/mu_b.md        an ambiguity in Eq. (A.7) that changes the results
-docs/robustness.md  which of the paper's arbitrary choices could matter, and a
-                    plan for testing them (design document, not yet run)
+docs/index.md             the paper reproduced in mizer, figure by figure
+docs/mapping.md           equation-by-equation mapping onto mizer, and the
+                          deviations
+docs/mu_b.md              an ambiguity in Eq. (A.7) that changes the results
+docs/robustness.md        which of the paper's arbitrary choices could matter,
+                          and a plan for testing them
+docs/robustness-results.md
+                          what the experiments found
+docs/life-history.md      where B ~ P comes from, and two attempts to break it
+docs/north-sea.md         the three rules on mizer's North Sea model
+docs/pdf/                 a PDF of each of those pages
 
-make_pdfs.py        renders every page listed in docs/_data/nav.yml to a PDF
-                    in docs/pdf/
+make_pdfs.py              renders every page listed in docs/_data/nav.yml to
+                          a PDF in docs/pdf/
 ```
 
 ## Running it
@@ -64,6 +92,19 @@ Rscript tests/test_convergence.R  # slow; no inputs needed
 
 `run_assembly.R` takes tens of minutes: it assembles four ecosystems, each by
 up to 40 sequential invasions with a 50-year relaxation after every one.
+
+That is the paper itself. The investigation on top of it is driven by the other
+`run_*.R` scripts, each caching into its own directory under `data/` so that a
+rerun picks up where it left off; `docs/robustness.md` says what each phase
+asks and `docs/robustness-results.md` what it found. The four that build the
+alternative ecosystems take arguments:
+
+```bash
+Rscript run_egg_assembly.R      <seed> <varied|fixed>
+Rscript run_activity_assembly.R <seed> <neutral|gradient>
+Rscript run_activity_harvest.R  <seed>
+Rscript run_activity_bhb.R      <seed>
+```
 
 ## What the model is
 
