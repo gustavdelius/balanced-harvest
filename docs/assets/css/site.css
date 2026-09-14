@@ -66,6 +66,10 @@ html { scroll-behavior: smooth; }
   white-space: nowrap;
 }
 
+/* `margin-left: auto` on the first link pushes the group right; any further
+   link just needs separating from it. */
+.site-header-link + .site-header-link { margin-left: 0.45rem; }
+
 .site-header-link:hover {
   color: #fff;
   text-decoration: none;

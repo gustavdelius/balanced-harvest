@@ -43,6 +43,17 @@
         Balanced harvesting
         <span class="site-brand-sub">a mizer reimplementation of Law &amp; Plank (2023)</span>
       </a>
+      {%- comment -%}
+        Every page has a PDF of itself under /pdf/, named after the page:
+        "/" -> index.pdf, "/name.html" -> name.pdf.  Built by make_pdfs.py.
+      {%- endcomment -%}
+      {%- if current_url == '/' -%}{%- assign pdf_name = 'index' -%}
+      {%- else -%}
+      {%- assign pdf_name = current_url | remove_first: '/' | remove: '.html' -%}
+      {%- endif -%}
+      <a class="site-header-link"
+         href="{{ '/pdf/' | append: pdf_name | append: '.pdf' | relative_url }}"
+         title="This page as a PDF">PDF</a>
       {% if site.github.repository_url %}
       <a class="site-header-link" href="{{ site.github.repository_url }}">GitHub</a>
       {% endif %}

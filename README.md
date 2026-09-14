@@ -47,6 +47,9 @@ docs/mapping.md     equation-by-equation mapping onto mizer, and the deviations
 docs/mu_b.md        an ambiguity in Eq. (A.7) that changes the results
 docs/robustness.md  which of the paper's arbitrary choices could matter, and a
                     plan for testing them (design document, not yet run)
+
+make_pdfs.py        renders every page listed in docs/_data/nav.yml to a PDF
+                    in docs/pdf/
 ```
 
 ## Running it
@@ -110,3 +113,26 @@ ecosystem and measured abundances?
 Short answer: yes, but only once the ecosystem contains something capable of
 being lost, and the usual "most depleted species" diagnostic points the wrong
 way. Code in `R/ns_*.R`.
+
+## The site as PDFs
+
+Every page of <https://gustavdelius.github.io/balanced-harvest/> is also kept as
+a PDF in `docs/pdf/`, reachable from the `PDF` link in the site's header bar.
+Regenerate them after editing any page:
+
+```bash
+python3 make_pdfs.py
+```
+
+It needs `pandoc`, `google-chrome`, `pdflatex` and Python's `pypdf`, but not
+Jekyll: pandoc turns each page into print-styled HTML with the maths as MathML,
+headless Chrome prints it, and a small LaTeX overlay adds the page numbers.
+
+The list of pages comes from `docs/_data/nav.yml`, so a page added to the site
+navigation gets a PDF without the script being touched, and the header link in
+`docs/_layouts/default.html` finds it by name (`/` to `index.pdf`,
+`/name.html` to `name.pdf`). The one convention the pages have to keep is in
+the maths: it is written the way kramdown needs it, `$$...$$` for inline as
+well as display, so the script takes a `$$` alone on its own line as a display
+delimiter and treats every other `$$` as inline. Do not start a display block
+with the formula on the same line as its `$$`.
